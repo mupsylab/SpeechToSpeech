@@ -15,7 +15,12 @@ interface VisualAudioOption {
 
     fillStyle: Color,
     strokeStyle: Color,
-    barStrokeStyle: Color
+    record: {
+        barStrokeStyle: Color
+    },
+    player: {
+        barStrokeStyle: Color
+    }
 }
 
 export class VisualAudio {
@@ -34,11 +39,20 @@ export class VisualAudio {
 
             fillStyle: window.getComputedStyle(document.documentElement).getPropertyValue("--dashboard-background"),
             strokeStyle: window.getComputedStyle(document.documentElement).getPropertyValue("--fc-suggest-bg"),
-            barStrokeStyle: [
-                { offset: 0, color: "#00ff87" },
-                { offset: 0.5, color: "#60efff" },
-                { offset: 1, color: "#00ff87" },
-            ],
+            record: {
+                barStrokeStyle: [
+                    { offset: 0, color: "#00ff87" },
+                    { offset: 0.5, color: "#BF8E69" },
+                    { offset: 1, color: "#00ff87" },
+                ]
+            },
+            player: {
+                barStrokeStyle: [
+                    { offset: 0, color: "#00ff87" },
+                    { offset: 0.5, color: "#60efff" },
+                    { offset: 1, color: "#00ff87" },
+                ]
+            },
             ...opts
         }
     }
@@ -61,7 +75,9 @@ export class VisualAudio {
     private drawBar(ctx: CanvasRenderingContext2D,
         centerX: number, centerY: number,
         angle: number, radius: number,
-        barHeight: number, width: number) {
+        barHeight: number, width: number,
+        barStrokeStyle: Color
+    ) {
         const startX = centerX + Math.cos(angle) * radius;
         const startY = centerY + Math.sin(angle) * radius;
         const endX = centerX + Math.cos(angle) * (radius + barHeight);
@@ -69,7 +85,7 @@ export class VisualAudio {
 
         ctx.beginPath();
         ctx.lineWidth = width;
-        ctx.strokeStyle = this.getGradientStyle(this.options.barStrokeStyle);
+        ctx.strokeStyle = this.getGradientStyle(barStrokeStyle);
         ctx.lineCap = 'round';
         ctx.moveTo(startX, startY);
         ctx.lineTo(endX, endY);
@@ -108,9 +124,10 @@ export class VisualAudio {
                 centerX,
                 centerY,
                 angle,
-                this.options.baseRadius as number,
+                this.options.baseRadius as number - 2,
                 - barHeight,
-                this.options.barWidth as number
+                this.options.barWidth as number,
+                this.options.record.barStrokeStyle
             );
         }
 
@@ -126,9 +143,10 @@ export class VisualAudio {
                 centerX,
                 centerY,
                 angle,
-                this.options.baseRadius as number,
+                this.options.baseRadius as number + 10,
                 barHeight,
-                this.options.barWidth as number
+                this.options.barWidth as number,
+                this.options.player.barStrokeStyle
             );
         }
         (this.options.rotationAngle as number) += 0.001;
@@ -138,6 +156,9 @@ export class VisualAudio {
         this.continue = true;
 
         this.dom = document.querySelector(id);
+        if (!this.dom) return;
+        this.dom.width = this.options.width;
+        this.dom.height = this.options.height;
 
         const dd = () => {
             if (this.continue) window.requestAnimationFrame(dd)
