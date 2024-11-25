@@ -1,29 +1,30 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { BaseAudioPlayer, StreamAudioPlayer, BaseAudioRecord, StreamAudioRecord, VisualAudio } from '../util/audio';
 import { loadAudioFromGPT, sttFromSensorVoice } from '../util/TTS';
 
-const ap = new BaseAudioPlayer();
+const ap = new StreamAudioPlayer();
 const ar = new StreamAudioRecord((blob) => {
     sttFromSensorVoice(blob).then(r => {
-        console.log(r[0]["text"]);
+        loadAudioFromGPT(r[0]["text"], ap);
     });
 });
 
-const toggle = () => {
-    if(ar.status === "recording") ar.stop(); else ar.start();
-}
+const msg = ref("");
+const useRecord = ref(false);
+watch(useRecord, (_, n) => {
+    if(n) ar.stop(); else ar.start();
+});
 
 onMounted(() => {
     new VisualAudio({
-        width: window.innerWidth,
-        height: window.innerHeight
+        width: 400,
+        height: 400
     }).start("#visualizer", ar, ap);
 });
 
-const msg = ref("");
 const keyboardEvent = (e: KeyboardEvent) => {
-    if(e.key === 'Enter') {
+    if (e.key === 'Enter') {
         loadAudioFromGPT(msg.value, ap);
         msg.value = "";
     }
@@ -32,11 +33,18 @@ const keyboardEvent = (e: KeyboardEvent) => {
 
 <template>
     <div class="test-box">
-        <div class="visualizer-container" @click="toggle">
+        <div class="visualizer-container">
             <canvas id="visualizer"></canvas>
         </div>
-        <div class="input-text" @keydown="keyboardEvent">
-            <input type="text" name="message" id="msg" v-model="msg" />
+        <div class="switch">
+            <div :class="{
+                display: true,
+                record: useRecord,
+                text: !useRecord
+            }" @click="useRecord = !useRecord"></div>
+        </div>
+        <div class="input-text" @keydown="keyboardEvent" v-if="!useRecord">
+            <input type="text" name="message" id="msg" placeholder="请输入文本" v-model="msg" />
         </div>
     </div>
 </template>
@@ -48,18 +56,62 @@ const keyboardEvent = (e: KeyboardEvent) => {
     height: 100vh;
     line-height: 0px;
 }
-canvas {
+.switch {
+    position: absolute;
+    left: 50%;
+    top: 5%;
+    transform: translate(-50%, 0%);
+}
+.switch .display {
+    width: 128px;
+    height: 64px;
+    background-color: var(--dashboard-layout);
+    border-radius: 32px;
+    position: relative;
+    user-select: none;
     cursor: pointer;
+}
+.switch .display.text::before {
+    content: '文字';
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    line-height: 48px;
+    border-radius: 50%;
+    text-align: center;
+    background-color: var(--dashboard-dividing);
+}
+.switch .display.record::before {
+    content: '录音';
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    line-height: 48px;
+    border-radius: 50%;
+    text-align: center;
+    background-color: var(--dashboard-dividing);
+}
+
+.visualizer-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .input-text {
     position: absolute;
     left: 50%;
-    bottom: 16px;
+    bottom: 10%;
     transform: translate(-50%, 0%);
 }
+
 .input-text input {
-    width: 300px;
+    width: 180px;
     height: 40px;
     padding: 0 12px;
     font-size: 16px;

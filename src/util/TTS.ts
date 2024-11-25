@@ -13,7 +13,11 @@ function loadBaseAudioFromGPT(s: string, ap: BaseAudioPlayer, url: string) {
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.responseType = "arraybuffer";
 
+    xhr.addEventListener("progress", () => {
+        // 数据加载中
+    });
     xhr.addEventListener("loadend", () => {
+        // 数据加载完毕
         ap.play(xhr.response);
     });
 
@@ -32,7 +36,7 @@ function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: string) {
     const prompt_lang = "zh";
     const prompt_text = "的就是，你的能力表现会越接近的话，那你的那个大脑的活动，激活的模式，可能也会越相似。";
     const text_split_method = "cut5";
-    const batch_size = 1;
+    const batch_size = 2;
     const media_type = "wav";
     const streaming_mode = true;
     const uri = `${url}?text=${s}&text_lang=${text_lang}&ref_audio_path=${ref_audio_path}&prompt_lang=${prompt_lang}&prompt_text=${prompt_text}&text_split_method=${text_split_method}&batch_size=${batch_size}&media_type=${media_type}&streaming_mode=${streaming_mode}`;
@@ -40,7 +44,8 @@ function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: string) {
     ap.play(uri);
 }
 
-export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPlayer, url: string = "http://127.0.0.1:9880/tts") {
+export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPlayer, url: string = "https://chat.lan.mupsy.net/tts") {
+    if(!s.length) return;
     if (ap instanceof BaseAudioPlayer) {
         loadBaseAudioFromGPT(s, ap, url);
     }
@@ -50,7 +55,7 @@ export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPla
     }
 }
 
-export function sttFromSensorVoice(blob: Blob, url: string = "http://172.16.192.35:8000/api/v1/asr") {
+export function sttFromSensorVoice(blob: Blob, url: string = "https://chat.lan.mupsy.net/api/v1/asr") {
     return new Promise<SensorVoiceResult[]>((resolve) => {
         const formData = new FormData();
         const audioFile = new File([blob], "asd", { type: "audio/wav" });
