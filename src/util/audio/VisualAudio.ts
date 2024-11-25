@@ -111,12 +111,14 @@ export class VisualAudio {
         ctx.lineWidth = 2;
         ctx.stroke();
 
+        ctx.globalAlpha = 0.5;
+
         // 绘制频谱柱状图
         const recordBarCount = record.length; // 使用一半的数据点以获得更好的视觉效果
         const recordAngleStep = (Math.PI * 2) / recordBarCount;
         for (let i = 0; i < recordBarCount; i++) {
             const value = record[i];
-            const barHeight = (value / 255) * 50; // 最大高度100像素
+            const barHeight = (value / 255) * 100; // 最大高度100像素
             const angle = i * recordAngleStep + (this.options.rotationAngle as number);
 
             this.drawBar(
@@ -124,8 +126,8 @@ export class VisualAudio {
                 centerX,
                 centerY,
                 angle,
-                this.options.baseRadius as number - 2,
-                - barHeight,
+                this.options.baseRadius as number,
+                barHeight,
                 this.options.barWidth as number,
                 this.options.record.barStrokeStyle
             );
@@ -143,7 +145,7 @@ export class VisualAudio {
                 centerX,
                 centerY,
                 angle,
-                this.options.baseRadius as number + 10,
+                this.options.baseRadius as number,
                 barHeight,
                 this.options.barWidth as number,
                 this.options.player.barStrokeStyle
