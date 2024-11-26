@@ -45,7 +45,7 @@ function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: string) {
 }
 
 export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPlayer, url: string = "https://chat.lan.mupsy.net/tts") {
-    if(!s.length) return;
+    if (!s.length) return;
     if (ap instanceof BaseAudioPlayer) {
         loadBaseAudioFromGPT(s, ap, url);
     }
