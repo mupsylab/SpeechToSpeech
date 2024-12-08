@@ -29,6 +29,14 @@ const keyboardEvent = (e: KeyboardEvent) => {
         msg.value = "";
     }
 }
+
+const click = () => {
+    fetch("./assets/txt/threebody.txt")
+        .then(r => r.text())
+        .then(r => {
+            loadAudioFromGPT(r, ap);
+        })
+}
 </script>
 
 <template>
@@ -44,6 +52,9 @@ const keyboardEvent = (e: KeyboardEvent) => {
             }" @click="useRecord = !useRecord"></div>
         </div>
         <div class="input-text" @keydown="keyboardEvent" v-if="!useRecord">
+            <div class="button-box">
+                <div @click="click">三体 解说</div>
+            </div>
             <input type="text" name="message" id="msg" placeholder="请输入文本" v-model="msg" />
         </div>
     </div>
@@ -108,6 +119,24 @@ const keyboardEvent = (e: KeyboardEvent) => {
     left: 50%;
     bottom: 10%;
     transform: translate(-50%, 0%);
+}
+
+.input-text .button-box {
+    display: block;
+    width: 100%;
+    height: 64px;
+}
+
+.input-text .button-box > div {
+    width: 96px;
+    height: 24px;
+    margin: 0 16px;
+    text-align: center;
+    background-color: var(--dashboard-layout);
+    line-height: 24px;
+    font-size: 16px;
+    user-select: none;
+    cursor: pointer;
 }
 
 .input-text input {

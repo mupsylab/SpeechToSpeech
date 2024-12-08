@@ -39,12 +39,31 @@ function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: string) {
     const batch_size = 2;
     const media_type = "wav";
     const streaming_mode = true;
-    const uri = `${url}?text=${s}&text_lang=${text_lang}&ref_audio_path=${ref_audio_path}&prompt_lang=${prompt_lang}&prompt_text=${prompt_text}&text_split_method=${text_split_method}&batch_size=${batch_size}&media_type=${media_type}&streaming_mode=${streaming_mode}`;
 
-    ap.play(uri);
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-type": "application/json"
+        },
+        body: JSON.stringify({
+            text: s,
+            text_lang,
+            ref_audio_path,
+            prompt_lang,
+            prompt_text,
+            text_split_method,
+            batch_size,
+            media_type,
+            streaming_mode
+        })
+    })
+        .then(r => r.json())
+        .then(r => {
+            ap.play(`http://127.0.0.1:9880/tts?file_id=${r.file_id}`)
+        })
 }
 
-export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPlayer, url: string = "https://chat.lan.mupsy.net/tts") {
+export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPlayer, url: string = "http://172.16.192.35:9880/tts") {
     if (!s.length) return;
     if (ap instanceof BaseAudioPlayer) {
         loadBaseAudioFromGPT(s, ap, url);
@@ -55,7 +74,7 @@ export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPla
     }
 }
 
-export function sttFromSensorVoice(blob: Blob, url: string = "https://chat.lan.mupsy.net/api/v1/asr") {
+export function sttFromSensorVoice(blob: Blob, url: string = "http://172.16.192.35:8000/api/v1/asr") {
     return new Promise<SensorVoiceResult[]>((resolve) => {
         const formData = new FormData();
         const audioFile = new File([blob], "asd", { type: "audio/wav" });

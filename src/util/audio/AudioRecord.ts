@@ -224,6 +224,7 @@ export class StreamAudioRecord implements AudioRecord {
     private recordIntervalNumber: number = -1;
     public start() {
         if (this.isRecording) return;
+        if (!window.navigator.mediaDevices) return;
         window.navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
             this.stream = stream;
             this.mediaRecorder = new MediaRecorder(stream);
