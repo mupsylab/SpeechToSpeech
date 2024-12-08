@@ -3,10 +3,16 @@ import { onMounted, ref, watch } from 'vue';
 import { BaseAudioPlayer, StreamAudioPlayer, BaseAudioRecord, StreamAudioRecord, VisualAudio } from '../util/audio';
 import { loadAudioFromGPT, sttFromSensorVoice } from '../util/TTS';
 
+// const ttsURL = "http://127.0.0.1:9880/tts";
+// const ttsURL = "http://172.16.192.35:9880/tts";
+// const sttURL = "http://172.16.192.35:8000/api/v1/asr";
+const ttsURL = "https://chat.lan.mupsy.net/tts";
+const sttURL = "https://chat.lan.mupsy.net/api/v1/asr";
+
 const ap = new StreamAudioPlayer();
 const ar = new StreamAudioRecord((blob) => {
-    sttFromSensorVoice(blob).then(r => {
-        loadAudioFromGPT(r[0]["text"], ap);
+    sttFromSensorVoice(blob, sttURL).then(r => {
+        loadAudioFromGPT(r[0]["text"], ap, ttsURL);
     });
 });
 
@@ -25,7 +31,7 @@ onMounted(() => {
 
 const keyboardEvent = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
-        loadAudioFromGPT(msg.value, ap);
+        loadAudioFromGPT(msg.value, ap, ttsURL);
         msg.value = "";
     }
 }
@@ -34,7 +40,7 @@ const click = () => {
     fetch("./assets/txt/threebody.txt")
         .then(r => r.text())
         .then(r => {
-            loadAudioFromGPT(r, ap);
+            loadAudioFromGPT(r, ap, ttsURL);
         })
 }
 </script>

@@ -11,16 +11,17 @@ function loadBaseAudioFromGPT(s: string, ap: BaseAudioPlayer, url: string) {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.responseType = "arraybuffer";
-
-    xhr.addEventListener("progress", () => {
-        // 数据加载中
-    });
+    xhr.responseType = "json";
     xhr.addEventListener("loadend", () => {
         // 数据加载完毕
-        ap.play(xhr.response);
+        const xhr1 = new XMLHttpRequest();
+        xhr1.open("GET", `${url}?file_id=${xhr.response.file_id}`, true);
+        xhr1.responseType = "arraybuffer";
+        xhr1.addEventListener("loadend", () => {
+            ap.play(xhr1.response);
+        });
+        xhr1.send(null);
     });
-
     xhr.send(JSON.stringify({
         text: s,
         text_lang: "zh",
@@ -59,11 +60,11 @@ function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: string) {
     })
         .then(r => r.json())
         .then(r => {
-            ap.play(`http://127.0.0.1:9880/tts?file_id=${r.file_id}`)
+            ap.play(`${url}?file_id=${r.file_id}`)
         })
 }
 
-export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPlayer, url: string = "http://172.16.192.35:9880/tts") {
+export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPlayer, url: string) {
     if (!s.length) return;
     if (ap instanceof BaseAudioPlayer) {
         loadBaseAudioFromGPT(s, ap, url);
@@ -74,7 +75,7 @@ export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPla
     }
 }
 
-export function sttFromSensorVoice(blob: Blob, url: string = "http://172.16.192.35:8000/api/v1/asr") {
+export function sttFromSensorVoice(blob: Blob, url: string) {
     return new Promise<SensorVoiceResult[]>((resolve) => {
         const formData = new FormData();
         const audioFile = new File([blob], "asd", { type: "audio/wav" });
