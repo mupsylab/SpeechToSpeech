@@ -7,7 +7,7 @@ interface SensorVoiceResult {
     raw_text: string
 }
 
-function loadBaseAudioFromGPT(s: string, ap: BaseAudioPlayer, url: string) {
+export function loadBaseAudioFromGPT(s: string, ap: BaseAudioPlayer, url: string) {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -31,7 +31,7 @@ function loadBaseAudioFromGPT(s: string, ap: BaseAudioPlayer, url: string) {
     }));
 }
 
-function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: string) {
+export function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: string) {
     const text_lang = "zh";
     const ref_audio_path = "output/ssy_的就是，你的能力表现会越接近的话，那你的那个大脑的活动，激活的模式，可能也会越相似。.wav";
     const prompt_lang = "zh";
@@ -64,23 +64,13 @@ function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: string) {
         })
 }
 
-export function loadAudioFromGPT(s: string, ap: BaseAudioPlayer | StreamAudioPlayer, url: string) {
-    if (!s.length) return;
-    if (ap instanceof BaseAudioPlayer) {
-        loadBaseAudioFromGPT(s, ap, url);
-    }
-
-    if (ap instanceof StreamAudioPlayer) {
-        loadStreamAudioFromGPT(s, ap, url);
-    }
-}
-
 export function sttFromSensorVoice(blob: Blob, url: string) {
     return new Promise<SensorVoiceResult[]>((resolve) => {
         const formData = new FormData();
         const audioFile = new File([blob], "asd", { type: "audio/wav" });
         formData.append('files', audioFile);
-        formData.append("keys", "asd")
+        formData.append("keys", "asd");
+        formData.append("lang", "zh");
         fetch(url, {
             method: "POST",
             body: formData

@@ -36,7 +36,7 @@ class StreamAudioPlayer {
         console.log(
             currentTime, bufferedStart, bufferedEnd
         );
-        if(bufferedEnd - currentTime < 2) {
+        if (bufferedEnd - currentTime < 2) {
             // 剩余可播放时间太短的话
             this.audioElement.pause();
         }
@@ -63,7 +63,7 @@ class StreamAudioPlayer {
     }
 
     public async loadAudio(reader: ReadableStreamDefaultReader<Uint8Array>, audio_type: string) {
-        if(this.mediaSource.readyState == "open") this.init(audio_type);
+        if (this.mediaSource.readyState == "open") this.init(audio_type);
         else {
             this.mediaSource.addEventListener("sourceopen", () => {
                 this.init(audio_type);
@@ -81,8 +81,8 @@ class StreamAudioPlayer {
     }
 
     public player() {
-        if(!this.sourceBuffer?.buffered.length) return;
-        if(!this.audioCtx) {
+        if (!this.sourceBuffer?.buffered.length) return;
+        if (!this.audioCtx) {
             this.audioCtx = new AudioContext();
             const sourceNode = this.audioCtx.createMediaElementSource(this.audioElement);
             sourceNode.connect(this.audioCtx.destination);

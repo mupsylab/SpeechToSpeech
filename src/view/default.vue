@@ -1,20 +1,49 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { BaseAudioPlayer, StreamAudioPlayer, BaseAudioRecord, StreamAudioRecord, VisualAudio } from '../util/audio';
-import { loadAudioFromGPT, sttFromSensorVoice } from '../util/TTS';
+import { StreamAudioPlayer, StreamAudioRecord, VisualAudio } from '../util/audio';
+import { loadStreamAudioFromGPT, sttFromSensorVoice } from '../util/TTS';
+import { OllamaLLM } from '../util/llm/ollama';
 
 // const ttsURL = "http://127.0.0.1:9880/tts";
 // const ttsURL = "http://172.16.192.35:9880/tts";
 // const sttURL = "http://172.16.192.35:8000/api/v1/asr";
+// const ollamaURL = "http://172.16.192.35:11434"
 const ttsURL = "https://chat.lan.mupsy.net/tts";
 const sttURL = "https://chat.lan.mupsy.net/api/v1/asr";
+const ollamaURL = "https://chat.lan.mupsy.net"
 
 const ap = new StreamAudioPlayer();
 const ar = new StreamAudioRecord((blob) => {
     sttFromSensorVoice(blob, sttURL).then(r => {
-        loadAudioFromGPT(r[0]["text"], ap, ttsURL);
+        if(!r[0]["text"].length) return;
+        ollama.chat(r[0]["text"]);
     });
 });
+
+const bufferMsg: string[] = [];
+const ollama = new OllamaLLM({
+    host: ollamaURL
+}, (msg) => {
+    bufferMsg.push(msg);
+    startTTS();
+}, () => {
+    ap.stop();
+    bufferMsg.splice(0, bufferMsg.length);
+});
+let ttsRun = false;
+const startTTS = async () => {
+    if(ttsRun) return;
+    ttsRun = true;
+    await ap.waitStop();
+    const msg = bufferMsg.join("");
+    bufferMsg.splice(0, bufferMsg.length);
+    if(msg.length) {
+        loadStreamAudioFromGPT(msg, ap, ttsURL);
+        await ap.waitStart();
+    }
+    ttsRun = false;
+    if(bufferMsg.length) startTTS();
+}
 
 const msg = ref("");
 const useRecord = ref(false);
@@ -31,17 +60,9 @@ onMounted(() => {
 
 const keyboardEvent = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
-        loadAudioFromGPT(msg.value, ap, ttsURL);
+        ollama.chat(msg.value);
         msg.value = "";
     }
-}
-
-const click = () => {
-    fetch("./assets/txt/threebody.txt")
-        .then(r => r.text())
-        .then(r => {
-            loadAudioFromGPT(r, ap, ttsURL);
-        })
 }
 </script>
 
@@ -58,9 +79,6 @@ const click = () => {
             }" @click="useRecord = !useRecord"></div>
         </div>
         <div class="input-text" @keydown="keyboardEvent" v-if="!useRecord">
-            <div class="button-box">
-                <div @click="click">三体 解说</div>
-            </div>
             <input type="text" name="message" id="msg" placeholder="请输入文本" v-model="msg" />
         </div>
     </div>

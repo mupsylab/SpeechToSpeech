@@ -84,6 +84,8 @@ export class StreamAudioPlayer implements AudioPlayer {
     private analyser: AnalyserNode | null = null;
     private options: AnalyserOption;
 
+    private startListener: Function[] = [];
+    private stopListener: Function[] = [];
     private isPlaying: boolean = false;
     constructor(options?: Partial<AnalyserOption>) {
         this.options = {
@@ -127,10 +129,26 @@ export class StreamAudioPlayer implements AudioPlayer {
         this.sourceNode.connect(this.analyser);
     }
 
+    public waitStart() {
+        return new Promise((resolve) => {
+            if(this.isPlaying) resolve(undefined);
+            this.startListener.push(() => { resolve(undefined); });
+        });
+    }
+    public waitStop() {
+        return new Promise((resolve) => {
+            if(!this.isPlaying) resolve(undefined);
+            this.stopListener.push(() => { resolve(undefined); });
+        });
+    }
     public play(url: string) {
         if (this.isPlaying) {
             this.stop();
         }
+        for(const listener of this.startListener) {
+            listener();
+        }
+        this.startListener = [];
         this.loadStream(url);
         this.isPlaying = true;
         this.audioContext?.resume().then(() => {
@@ -139,6 +157,10 @@ export class StreamAudioPlayer implements AudioPlayer {
     }
     public stop() {
         if (!this.isPlaying) return;
+        for(const listener of this.stopListener) {
+            listener();
+        }
+        this.stopListener = [];
         this.isPlaying = false;
         this.sourceNode?.disconnect();
         this.analyser?.disconnect();
