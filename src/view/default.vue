@@ -4,13 +4,13 @@ import { StreamAudioPlayer, StreamAudioRecord, VisualAudio } from '../util/audio
 import { loadStreamAudioFromGPT, sttFromSensorVoice } from '../util/TTS';
 import { OllamaLLM } from '../util/llm/ollama';
 
-// const ttsURL = "http://127.0.0.1:9880/tts";
+const ttsURL = "http://127.0.0.1:9880/tts";
 // const ttsURL = "http://172.16.192.35:9880/tts";
-// const sttURL = "http://172.16.192.35:8000/api/v1/asr";
-// const ollamaURL = "http://172.16.192.35:11434"
-const ttsURL = "https://chat.lan.mupsy.net/tts";
-const sttURL = "https://chat.lan.mupsy.net/api/v1/asr";
-const ollamaURL = "https://chat.lan.mupsy.net"
+const sttURL = "http://172.16.192.35:8000/api/v1/asr";
+const ollamaURL = "http://172.16.192.35:11434"
+// const ttsURL = "https://chat.lan.mupsy.net/tts";
+// const sttURL = "https://chat.lan.mupsy.net/api/v1/asr";
+// const ollamaURL = "https://chat.lan.mupsy.net"
 
 const ap = new StreamAudioPlayer();
 const ar = new StreamAudioRecord((blob) => {
@@ -38,11 +38,20 @@ const startTTS = async () => {
     const msg = bufferMsg.join("");
     bufferMsg.splice(0, bufferMsg.length);
     if(msg.length) {
-        loadStreamAudioFromGPT(msg, ap, ttsURL);
-        await ap.waitStart();
+        loadStreamAudioFromGPT(msg, ap, ttsURL)
+            .then(async () => {
+                await ap.waitStart();
+                ttsRun = false;
+                if(bufferMsg.length) startTTS();
+            })
+            .catch(() => {
+                ttsRun = false;
+                if(bufferMsg.length) startTTS();
+            });
+    } else {
+        ttsRun = false;
+        if(bufferMsg.length) startTTS();
     }
-    ttsRun = false;
-    if(bufferMsg.length) startTTS();
 }
 
 const msg = ref("");

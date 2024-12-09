@@ -40,28 +40,34 @@ export function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: st
     const batch_size = 2;
     const media_type = "wav";
     const streaming_mode = true;
-
-    fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-type": "application/json"
-        },
-        body: JSON.stringify({
-            text: s,
-            text_lang,
-            ref_audio_path,
-            prompt_lang,
-            prompt_text,
-            text_split_method,
-            batch_size,
-            media_type,
-            streaming_mode
+    return new Promise((resolve, reject) => {
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({
+                text: s,
+                text_lang,
+                ref_audio_path,
+                prompt_lang,
+                prompt_text,
+                text_split_method,
+                batch_size,
+                media_type,
+                streaming_mode
+            })
         })
-    })
-        .then(r => r.json())
-        .then(r => {
-            ap.play(`${url}?file_id=${r.file_id}`)
-        })
+            .then(r => r.json())
+            .then(r => {
+                ap.play(`${url}?file_id=${r.file_id}`);
+                resolve(undefined);
+            })
+            .catch(error => {
+                console.error(error);
+                reject();
+            })
+    });
 }
 
 export function sttFromSensorVoice(blob: Blob, url: string) {

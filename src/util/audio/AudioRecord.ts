@@ -161,7 +161,7 @@ export class StreamAudioRecord implements AudioRecord {
         this.options = {
             recordInterval: 100,
             recordDuation: 2000,
-            silenceThreshold: 15,
+            silenceThreshold: 20,
             minDecibels: -90,
             maxDecibels: -10,
             smoothingTimeConstant: 0.8,
