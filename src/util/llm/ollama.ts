@@ -65,7 +65,7 @@ export class OllamaLLM {
             const msg = part.message.content;
 
             bufferText.push(msg);
-            if(",.，。！？!?\n".indexOf(msg) >= 0) {
+            if(",.，。！？!?\n".indexOf(msg) >= 0 && bufferText.length - i > 5) {
                 this.callback(bufferText.slice(i, bufferText.length).join(""));
                 i = bufferText.length;
             }

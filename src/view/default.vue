@@ -4,19 +4,18 @@ import { StreamAudioPlayer, StreamAudioRecord, VisualAudio } from '../util/audio
 import { loadStreamAudioFromGPT, sttFromSensorVoice } from '../util/TTS';
 import { OllamaLLM } from '../util/llm/ollama';
 
-const ttsURL = "http://127.0.0.1:9880/tts";
-// const ttsURL = "http://172.16.192.35:9880/tts";
-const sttURL = "http://172.16.192.35:8000/api/v1/asr";
-const ollamaURL = "http://172.16.192.35:11434"
-// const ttsURL = "https://chat.lan.mupsy.net/tts";
-// const sttURL = "https://chat.lan.mupsy.net/api/v1/asr";
-// const ollamaURL = "https://chat.lan.mupsy.net"
+// const ttsURL = "http://172.16.192.35:8002/api/tts";
+// const sttURL = "http://172.16.192.35:8002/api/asr";
+// const ollamaURL = "http://172.16.192.35:11434"
+const ttsURL = "https://chat.lan.mupsy.net/api/tts";
+const sttURL = "https://chat.lan.mupsy.net/api/asr";
+const ollamaURL = "https://chat.lan.mupsy.net"
 
 const ap = new StreamAudioPlayer();
 const ar = new StreamAudioRecord((blob) => {
     sttFromSensorVoice(blob, sttURL).then(r => {
-        if(!r[0]["text"].length) return;
-        ollama.chat(r[0]["text"]);
+        if(!r["text"].length) return;
+        ollama.chat(r["text"]);
     });
 });
 

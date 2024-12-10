@@ -1,7 +1,6 @@
 import { BaseAudioPlayer, StreamAudioPlayer } from "./audio";
 
 interface SensorVoiceResult {
-    key: string,
     text: string,
     clean_text: string,
     raw_text: string
@@ -33,10 +32,6 @@ export function loadBaseAudioFromGPT(s: string, ap: BaseAudioPlayer, url: string
 
 export function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: string) {
     const text_lang = "zh";
-    const ref_audio_path = "output/ssy_的就是，你的能力表现会越接近的话，那你的那个大脑的活动，激活的模式，可能也会越相似。.wav";
-    const prompt_lang = "zh";
-    const prompt_text = "的就是，你的能力表现会越接近的话，那你的那个大脑的活动，激活的模式，可能也会越相似。";
-    const text_split_method = "cut5";
     const batch_size = 2;
     const media_type = "wav";
     const streaming_mode = true;
@@ -49,10 +44,6 @@ export function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: st
             body: JSON.stringify({
                 text: s,
                 text_lang,
-                ref_audio_path,
-                prompt_lang,
-                prompt_text,
-                text_split_method,
                 batch_size,
                 media_type,
                 streaming_mode
@@ -71,11 +62,10 @@ export function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: st
 }
 
 export function sttFromSensorVoice(blob: Blob, url: string) {
-    return new Promise<SensorVoiceResult[]>((resolve) => {
+    return new Promise<SensorVoiceResult>((resolve) => {
         const formData = new FormData();
         const audioFile = new File([blob], "asd", { type: "audio/wav" });
-        formData.append('files', audioFile);
-        formData.append("keys", "asd");
+        formData.append('file', audioFile);
         formData.append("lang", "zh");
         fetch(url, {
             method: "POST",
