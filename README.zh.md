@@ -11,10 +11,15 @@
 - 您也可以基于`api.py`快速开发一个额外的解决方案，甚至使用在线服务。
 - 您可以随时用您的麦克风打断 LLM。
 
-## 目标平台
-- macOS
-- Linux
-- Windows
+## 计划功能列表
+- [x] 语音识别
+- [x] 语音生成
+- [x] 接入LLM进行聊天对话
+- [ ] 能够使用不同情绪（模拟不同声音的方式）
+- [ ] 接入FastGPT，能够调用外部函数
+- [ ] 拓展成个人语音助手
+
+> 欢迎有想法的小伙伴pull
 
 ## 额外要求
 请确保你当前机器具有以下环境支持
@@ -28,8 +33,12 @@ git clone https://www.github.com/mupsylab/speechtospeech.git
 cd speechtospeech
 ```
 
-对于使用
-首先需要有一个python后端来运行api服务
+对于使用，你还应该先手动下载额外的数据，包括
+- 模型文件
+- 用于克隆声音的音频
+当然，这些你都可以从[OSS](https://insula.oss-cn-chengdu.aliyuncs.com/2024121001/STS_aio.zip)下载到。并放到项目根目录解压，记住`解压到`项目根目录。
+
+启动后端，需要有一个python来运行api服务
 ```shell
 conda create -n sts python==3.9.10 -y
 conda activate sts
