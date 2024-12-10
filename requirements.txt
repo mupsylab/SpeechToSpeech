@@ -1,0 +1,31 @@
+# python==3.9
+
+numpy==1.23.4
+torch==2.5.0 --index-url https://download.pytorch.org/whl/cu121
+torchvision==0.20.0 --index-url https://download.pytorch.org/whl/cu121
+torchaudio==2.5.0 --index-url https://download.pytorch.org/whl/cu121
+
+PyYAML
+ffmpeg-python
+
+uvicorn==0.30.6
+fastapi==0.110.1
+funasr==1.1.3
+transformers==4.45.1
+pytorch_lightning==2.4.0
+LangSegment==0.3.5
+cn2an==0.5.22
+pypinyin==0.53.0
+jieba_fast==0.53
+modelscope==1.10.0
+
+opencc; sys_platform != 'linux'
+opencc==1.1.1; sys_platform == 'linux'
+
+onnxruntime==1.17.1; sys_platform == 'darwin'
+onnxruntime-gpu==1.19.2; sys_platform != 'darwin'
+
+python-multipart==0.0.19
+wordsegment==1.3.1
+g2p_en==2.1.0
+
