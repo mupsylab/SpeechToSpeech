@@ -3,6 +3,7 @@ import subprocess
 import soundfile as sf
 import numpy as np
 from io import BytesIO
+from model.GPT_SoVITS.utils import *
 
 ### modify from https://github.com/RVC-Boss/GPT-SoVITS/pull/894/files
 def pack_ogg(io_buffer:BytesIO, data:np.ndarray, rate:int):

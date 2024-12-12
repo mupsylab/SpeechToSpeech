@@ -25,18 +25,18 @@ if not os.path.exists("TEMP"):
     os.mkdir("TEMP")
 
 sv_model = AutoModel(
-    model="./pretrain/SenseVoiceSmall",
+    model=os.environ.get("SENSE_MODEL"),
     trust_remote_code=True,
     remote_code="./model/SensorVoice/model.py",
-    vad_model="./pretrain/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+    vad_model=os.environ.get("VAD_MODEL"),
     vad_kwargs={"max_single_segment_time": 30000},
     device="cuda:0",
 )
-tts_config = TTS_Config("./pretrain/GPT_SoVITS/tts_infer.yaml")
+tts_config = TTS_Config(os.environ.get("GPT_SoVITS"))
 tts_pipeline = TTS(tts_config)
 tts_pipeline.set_prompt_cache(
-    "workspace/moss_刘培强，中校，请您即刻前往休眠区休眠。.wav",
-    "刘培强，中校，请您即刻前往休眠区休眠。",
+    os.environ.get("PROMPT_AUDIO"),
+    os.environ.get("PROMPT_TEXT"),
     "zh"
 )
 
