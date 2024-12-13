@@ -40,6 +40,7 @@ export function loadStreamAudioFromGPT(s: string, ap: StreamAudioPlayer, url: st
             },
             body: JSON.stringify({
                 text: s,
+                seed: 1234567,
                 text_lang,
                 batch_size,
                 media_type,

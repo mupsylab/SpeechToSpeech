@@ -4,22 +4,20 @@ import { StreamAudioPlayer, StreamAudioRecord, VisualAudio } from '../util/audio
 import { loadStreamAudioFromGPT, sttFromSensorVoice } from '../util/TTS';
 import { OllamaLLM } from '../util/llm/ollama';
 
-const ttsURL = "http://127.0.0.1:8002/api/tts";
-const sttURL = "http://127.0.0.1:8002/api/asr";
-const ollamaURL = "http://127.0.0.1:11434";
+import * as config from "../config";
 
 const ap = new StreamAudioPlayer();
 const ar = new StreamAudioRecord((blob) => {
-    sttFromSensorVoice(blob, sttURL).then(r => {
-        if(!r["text"].length) return;
+    sttFromSensorVoice(blob, config.sttURL).then(r => {
+        if (!r["text"].length) return;
         ollama.chat(r["text"]);
     });
 });
 
 const bufferMsg: string[] = [];
 const ollama = new OllamaLLM({
-    host: ollamaURL
-}, (msg) => {
+    host: config.ollamaURL
+}, config.ollamaMODEL, config.initMsg, (msg) => {
     bufferMsg.push(msg);
     startTTS();
 }, () => {
@@ -28,32 +26,32 @@ const ollama = new OllamaLLM({
 });
 let ttsRun = false;
 const startTTS = async () => {
-    if(ttsRun) return;
+    if (ttsRun) return;
     ttsRun = true;
     await ap.waitStop();
     const msg = bufferMsg.join("");
     bufferMsg.splice(0, bufferMsg.length);
-    if(msg.length) {
-        loadStreamAudioFromGPT(msg, ap, ttsURL)
+    if (msg.length) {
+        loadStreamAudioFromGPT(msg, ap, config.ttsURL)
             .then(async () => {
                 await ap.waitStart();
                 ttsRun = false;
-                if(bufferMsg.length) startTTS();
+                if (bufferMsg.length) startTTS();
             })
             .catch(() => {
                 ttsRun = false;
-                if(bufferMsg.length) startTTS();
+                if (bufferMsg.length) startTTS();
             });
     } else {
         ttsRun = false;
-        if(bufferMsg.length) startTTS();
+        if (bufferMsg.length) startTTS();
     }
 }
 
 const msg = ref("");
 const useRecord = ref(false);
 watch(useRecord, (_, n) => {
-    if(n) ar.stop(); else ar.start();
+    if (n) ar.stop(); else ar.start();
 });
 
 onMounted(() => {
@@ -96,12 +94,14 @@ const keyboardEvent = (e: KeyboardEvent) => {
     height: 100vh;
     line-height: 0px;
 }
+
 .switch {
     position: absolute;
     left: 50%;
     top: 5%;
     transform: translate(-50%, 0%);
 }
+
 .switch .display {
     width: 128px;
     height: 64px;
@@ -111,6 +111,7 @@ const keyboardEvent = (e: KeyboardEvent) => {
     user-select: none;
     cursor: pointer;
 }
+
 .switch .display.text::before {
     content: '文字';
     width: 48px;
@@ -123,6 +124,7 @@ const keyboardEvent = (e: KeyboardEvent) => {
     text-align: center;
     background-color: var(--dashboard-dividing);
 }
+
 .switch .display.record::before {
     content: '录音';
     width: 48px;
@@ -156,7 +158,7 @@ const keyboardEvent = (e: KeyboardEvent) => {
     height: 64px;
 }
 
-.input-text .button-box > div {
+.input-text .button-box>div {
     width: 96px;
     height: 24px;
     margin: 0 16px;
