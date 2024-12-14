@@ -1,7 +1,7 @@
 const ttsURL = "http://127.0.0.1:8002/api/tts";
 const sttURL = "http://127.0.0.1:8002/api/asr";
-const ollamaURL = "http://127.0.0.1:11434";
-const ollamaMODEL = "qwen2.5:3b";
+const ollamaURL = "http://172.16.192.35:11434";
+const ollamaMODEL = "EntropyYue/chatglm3:6b";
 
 const initMsg = [{
     role: "system",

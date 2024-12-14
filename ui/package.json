@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "ollama": "^0.5.11",
+    "openai": "^4.76.3",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
   },
