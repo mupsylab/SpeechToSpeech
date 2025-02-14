@@ -36,7 +36,6 @@ onMounted(() => {
         width: 400,
         height: 400
     }).start("#visualizer", ar, ap);
-    ap.play(config.getURL(`/api/tts?cid=${cid}`));
 });
 
 /**
@@ -55,6 +54,15 @@ const click = () => {
     if (!UserSpeech.value) return;
     UserSpeech.value = false;
 };
+
+/**
+ * 下面是激活聊天, 避免错误
+ */
+const init = ref(false);
+const activate = () => {
+    init.value = true;
+    ap.play(config.getURL(`/api/tts?cid=${cid}`));
+}
 </script>
 
 <template>
@@ -68,6 +76,12 @@ const click = () => {
                 left: UserSpeech,
                 right: !UserSpeech
             }" @click="click"></div>
+        </div>
+
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); cursor: pointer;"
+             @click="activate"
+             v-if="!init">
+            点击这里 开始聊天
         </div>
     </div>
 </template>

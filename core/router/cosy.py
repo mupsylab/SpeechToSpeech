@@ -20,9 +20,12 @@ cosyvoice: CosyVoice2 = load()
 prompt_speech_16k = load_wav("model_pretrained/GPT_SoVITS/ssy.wav", 16000)
 @router.post("/tts/cosy")
 async def speech_zero_shot(tts_text: str = fastapi.Form(),
-                          stream: bool = fastapi.Form(default = False)):
+                           stream: bool = fastapi.Form(default = False)):
     model_output: list[dict[str, torch.Tensor]] = cosyvoice.inference_zero_shot(
-        tts_text, "的就是，你的能力表现会越接近的话，那你的那个大脑的活动，激活的模式，可能也会越相似。", prompt_speech_16k, stream = stream
+        tts_text, 
+        prompt_text = "的就是，你的能力表现会越接近的话，那你的那个大脑的活动，激活的模式，可能也会越相似。", 
+        prompt_speech_16k = prompt_speech_16k,
+        stream = stream, text_frontend = False
     )
     if not stream:
         for item in model_output:
