@@ -121,7 +121,7 @@ class TTS_Config:
         
         # 设置默认配置文件路径
         configs_base_path:str = "pretrain/GPT_SoVITS/"
-        os.makedirs(configs_base_path, exist_ok=True)
+        # os.makedirs(configs_base_path, exist_ok=True)
         self.configs_path:str = os.path.join(configs_base_path, "tts_infer.yaml")
         
         if configs in ["", None]:

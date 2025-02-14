@@ -9,8 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "element-plus": "^2.9.4",
     "ollama": "^0.5.11",
     "openai": "^4.76.3",
+    "pinia": "^3.0.1",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
   },

@@ -1,6 +1,8 @@
-bin
 __pycache__
-workspace
 TEMP
-pretrain
+model_pretrained
+runtime
+
+data/interview
+
 .env

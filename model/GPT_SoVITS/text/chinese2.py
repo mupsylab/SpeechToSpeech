@@ -28,7 +28,7 @@ if is_g2pw:
     from text.g2pw import G2PWPinyin, correct_pronunciation
     parent_directory = os.path.dirname(current_file_path)
     print(parent_directory)
-    g2pw = G2PWPinyin(model_dir="pretrain/GPT_SoVITS/G2PWModel",model_source=os.environ.get("bert_path","pretrain/GPT_SoVITS/chinese-roberta-wwm-ext-large"),v_to_u=False, neutral_tone_with_five=True)
+    g2pw = G2PWPinyin(model_dir="model_pretrained/GPT_SoVITS/G2PWModel",model_source=os.environ.get("bert_path","model_pretrained/GPT_SoVITS/chinese-roberta-wwm-ext-large"),v_to_u=False, neutral_tone_with_five=True)
 
 rep_map = {
     "：": ",",

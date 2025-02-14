@@ -1,3 +1,5 @@
+import { EventManager } from "../EventManager";
+
 interface Audio {
     currAudioArray: Uint8Array;
 }
@@ -10,7 +12,7 @@ interface AnalyserOption {
     minDecibels: number;
     maxDecibels: number;
 };
-export class BaseAudioPlayer implements AudioPlayer {
+export class BaseAudioPlayer extends EventManager implements AudioPlayer {
     private audioContext: AudioContext | null = null;
     private source: AudioBufferSourceNode | null = null;
     private analyser: AnalyserNode | null = null;
@@ -18,6 +20,7 @@ export class BaseAudioPlayer implements AudioPlayer {
 
     private isPlaying: boolean = false;
     constructor(options?: Partial<AnalyserOption>) {
+        super();
         this.options = {
             minDecibels: -90,
             maxDecibels: -10,
@@ -41,6 +44,7 @@ export class BaseAudioPlayer implements AudioPlayer {
         if(!this.audioContext) this.audioContext = new AudioContext();
 
         this.isPlaying = true;
+        this.dispatchEvent("start");
         this.audioContext.decodeAudioData(arrayBuffer).then(audioBuffer => {
             this.audioContext?.close();
             this.audioContext = new AudioContext();
@@ -64,6 +68,7 @@ export class BaseAudioPlayer implements AudioPlayer {
     public stop() {
         if (!this.isPlaying) return;
         this.isPlaying = false;
+        this.dispatchEvent("stop");
         this.source?.stop();
     }
     public get status() {
@@ -77,7 +82,7 @@ export class BaseAudioPlayer implements AudioPlayer {
     }
 }
 
-export class StreamAudioPlayer implements AudioPlayer {
+export class StreamAudioPlayer extends EventManager implements AudioPlayer {
     private audioElement: HTMLAudioElement | null = null;
     private audioContext: AudioContext | null = null;
     private sourceNode: MediaElementAudioSourceNode | null = null;
@@ -88,6 +93,7 @@ export class StreamAudioPlayer implements AudioPlayer {
     private stopListener: Function[] = [];
     private isPlaying: boolean = false;
     constructor(options?: Partial<AnalyserOption>) {
+        super();
         this.options = {
             minDecibels: -90,
             maxDecibels: -10,
@@ -151,6 +157,7 @@ export class StreamAudioPlayer implements AudioPlayer {
         this.startListener = [];
         this.loadStream(url);
         this.isPlaying = true;
+        this.dispatchEvent("start");
         this.audioContext?.resume().then(() => {
             this.audioElement?.play();
         });
@@ -164,6 +171,8 @@ export class StreamAudioPlayer implements AudioPlayer {
         this.isPlaying = false;
         this.sourceNode?.disconnect();
         this.analyser?.disconnect();
+
+        this.dispatchEvent("stop");
         this.audioElement?.pause();
     }
 

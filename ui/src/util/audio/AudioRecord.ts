@@ -1,5 +1,5 @@
 import { AudioUtils } from "./AudioUtils";
-
+import { EventManager } from "../EventManager";
 interface Audio {
     currAudioArray: Uint8Array;
 }
@@ -17,7 +17,8 @@ interface StreamAudioOption {
     recordInterval: number;
     silenceThreshold: number;
 }
-export class BaseAudioRecord implements AudioRecord {
+
+export class BaseAudioRecord extends EventManager implements AudioRecord {
     private stream: MediaStream | null = null;
     private mediaRecorder: MediaRecorder | null = null;
     private audioContext: AudioContext | null = null;
@@ -28,9 +29,8 @@ export class BaseAudioRecord implements AudioRecord {
     private isInit: boolean = false;
     private isRecording: boolean = false;
 
-    private listener: (blob: Blob) => void;
-    constructor(listener: (blob: Blob) => void, options?: Partial<AnalyserOption>) {
-        this.listener = listener;
+    constructor(options?: Partial<AnalyserOption>) {
+        super();
 
         this.options = {
             minDecibels: -90,
@@ -74,8 +74,13 @@ export class BaseAudioRecord implements AudioRecord {
             this.audioChunks.push(e.data);
         });
         this.mediaRecorder.addEventListener("stop", () => {
-            this.listener(new Blob(this.audioChunks, { type: "audio/wav" }))
-            this.audioChunks = [];
+            if (this.audioChunks.length == 0) return;
+            const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+            AudioUtils.getAudioBufferFromBlob(audioBlob).then(arrayBuffer => {
+                const blob = new Blob([AudioUtils.audioBufferToWav(arrayBuffer)], { type: "audio/wav" });
+                this.dispatchEvent("record", blob);
+                this.audioChunks = [];
+            });
         });
     };
 
@@ -96,6 +101,7 @@ export class BaseAudioRecord implements AudioRecord {
 
             this.registerEventListener();
             this.isInit = true;
+            this.dispatchEvent("start");
             this.startRecording();
         } catch (error) {
             console.error('Failed to initialize audio recording:', error);
@@ -106,6 +112,7 @@ export class BaseAudioRecord implements AudioRecord {
     public stop(): void {
         if (!this.isInit) return;
 
+        this.dispatchEvent("stop");
         this.stopRecording();
         if (this.stream) {
             this.stream.getTracks().forEach(track => track.stop());
@@ -134,7 +141,7 @@ export class BaseAudioRecord implements AudioRecord {
     }
 }
 
-export class StreamAudioRecord implements AudioRecord {
+export class StreamAudioRecord extends EventManager implements AudioRecord {
     private stream: MediaStream | null = null;
     private mediaRecorder: MediaRecorder | null = null;
     private audioContext: AudioContext | null = null;
@@ -155,9 +162,9 @@ export class StreamAudioRecord implements AudioRecord {
     }
 
     private isRecording: boolean = false;
-    private listener: (blob: Blob) => void;
-    constructor(listener: (blob: Blob) => void, options?: Partial<AnalyserOption & StreamAudioOption>) {
-        this.listener = listener;
+    constructor(options?: Partial<AnalyserOption & StreamAudioOption>) {
+        super();
+
         this.options = {
             recordInterval: 100,
             recordDuation: 2000,
@@ -191,24 +198,17 @@ export class StreamAudioRecord implements AudioRecord {
         Promise.all(this.audioChunks.map(AudioUtils.getAudioBufferFromBlob)).then(r => {
             const arrayBuffer = AudioUtils.mergeAudioBuffer(r);
             const blob = new Blob([AudioUtils.audioBufferToWav(arrayBuffer)], { type: "audio/wav" });
-            this.listener(blob);
+            this.dispatchEvent("record", blob);
         });
         this.audioChunks = [];
     }
-    private detectSoundTail = 0;
     private timerHandler() {
-        if (!this.detectSound) {
-            // 如果当前没有人在说话
-            this.detectSoundTail += 1;
-            if (this.detectSoundTail > 5) this.audioChunks.splice(this.audioChunks.length - 1, 1);
-        } else {
-            // 有人说话, 重置尾音计时器
-            this.detectSoundTail = 0;
-        }
         this.mediaRecorder?.stop();
         const len = this.options.recordDuation / this.options.recordInterval;
-        if ((this.audioChunks.length > len && !this.detectSound) || this.detectSoundTail > 10) {
-            // 保证本段音频的完整性
+        if ((this.audioChunks.length > len && !this.detectSound) || !this.isRecording) {
+            // 如果 音频长度 达到最大, 且没人在说话
+            // 或 结尾没人说话
+            // 则保持音频
             this.saveAudio();
 
             if (!this.isRecording) {
@@ -231,6 +231,7 @@ export class StreamAudioRecord implements AudioRecord {
             this.registerContext();
             this.registerEventListener();
             this.isRecording = true;
+            this.dispatchEvent("start");
             this.mediaRecorder.start();
             this.recordIntervalNumber = setInterval(() => {
                 this.timerHandler();
@@ -243,6 +244,7 @@ export class StreamAudioRecord implements AudioRecord {
         if (!this.isRecording || !this.mediaRecorder) return;
         this.isRecording = false;
 
+        this.dispatchEvent("stop");
         this.mediaRecorder.stop();
         if (this.stream) {
             this.stream.getTracks().forEach(track => track.stop());
