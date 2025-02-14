@@ -19,11 +19,10 @@ async def asr(files: Annotated[List[bytes], fastapi.File(description="wav or mp3
         await put_llm(m, cid)
     return fastapi.Response(str(generate_snowflake_id()))
 
-from .cosy import speech_instruct
+from .cosy import speech_zero_shot
 @router.get("/api/tts")
 async def tts(cid: int):
-    return await speech_instruct(generate_msg(cid), 
-                                 "用舒缓的语气说", True)
+    return await speech_zero_shot(generate_msg(cid), True)
 
 from ..utils.snowflake import generate_snowflake_id
 @router.get("/api/id")
