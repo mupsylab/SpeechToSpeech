@@ -38,18 +38,18 @@ def inferce_zero_shot(tts_text: str | Generator[str], stream: bool = False):
         yield wave_header_chunk(sample_rate = cosyvoice.sample_rate)
         for item in model_output:
             yield pack_audio(
-            BytesIO(),
-            (item["tts_speech"] * (2 ** 15)).numpy().astype(np.int16),
-            cosyvoice.sample_rate,
-            "raw"
-        ).getvalue()
+                BytesIO(),
+                (item["tts_speech"] * (2 ** 15)).numpy().astype(np.int16),
+                cosyvoice.sample_rate,
+                "raw"
+            ).getvalue()
     else:
         for item in model_output:
             audio = BytesIO()
             torchaudio.save(audio, item["tts_speech"], cosyvoice.sample_rate, format = "wav")
-            v = audio.getvalue()
+            blob = audio.getvalue()
             audio.close()
-            return v
+            return blob
 
 
 
