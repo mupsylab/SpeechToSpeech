@@ -4,7 +4,7 @@ import re
 import openai
 from typing import Generator
 
-from .interface import ChatResponse, ChatMessage
+from . import ChatResponse, ChatMessage
 
 client = openai.OpenAI(
     base_url = os.getenv("OPENAI_BASE_URL", None),

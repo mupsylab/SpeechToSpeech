@@ -7,7 +7,15 @@ from funasr.utils.postprocess_utils import rich_transcription_postprocess
 from typing import List
 from typing_extensions import Annotated
 
-from .interface import Language
+from enum import Enum
+class Language(str, Enum):
+    auto = "auto"
+    zh = "zh"
+    en = "en"
+    yue = "yue"
+    ja = "ja"
+    ko = "ko"
+    nospeech = "nospeech"
 from ..utils.cache import cache
 
 router = fastapi.APIRouter(prefix="/api")

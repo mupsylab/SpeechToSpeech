@@ -51,5 +51,19 @@ def inferce_zero_shot(tts_text: str | Generator[str], stream: bool = False):
             audio.close()
             return blob
 
-
+prompt_speech_16k = load_wav("model_pretrained/ssy_short.wav", 16000)
+def stream_io(tts_text: Generator[str]):
+    yield wave_header_chunk(sample_rate = cosyvoice.sample_rate)
+    for text in tts_text:
+        model_output = cosyvoice.inference_instruct2(
+            text, "用爱慕且温柔的语气说话", 
+            prompt_speech_16k, stream=True, text_frontend=False
+        )
+        for item in model_output:
+            yield pack_audio(
+                BytesIO(),
+                (item["tts_speech"] * (2 ** 15)).numpy().astype(np.int16),
+                cosyvoice.sample_rate,
+                "raw"
+            ).getvalue()
 

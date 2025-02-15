@@ -24,15 +24,12 @@ if __name__ == "__main__":
     import time
     import threading
 
+    from core.router.sts import cm
     from core.llm.chatgpt import chat
-    from core.router.interview import cache
     def timeHandler():
         # 定时任务
         while True:
-            for key, item in cache.items():
-                print("check: %s" % str(key))
-                item.check_llm_message(chat)
-                item.judge(chat)
+            cm.check_llm_message(chat)
             time.sleep(30) # 30s 执行一次
     thread = threading.Thread(target=timeHandler, daemon=True)
     thread.start()
