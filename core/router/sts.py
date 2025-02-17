@@ -11,10 +11,13 @@ from ..llm import ChatManager
 cm = ChatManager()
 from ..llm.chatgpt import chat
 def generate_msg():
-    for resp in chat(cm.get_llm_message()):
-        if resp.type == "sentence":
-            yield resp.content
-    cm.add_chat(resp.content, "assistant")
+    if len(cm.cache) and cm.cache[-1].role == "assistant":
+        yield cm.cache[-1].content
+    else:
+        for resp in chat(cm.get_llm_message()):
+            if resp.type == "sentence":
+                yield resp.content
+        cm.add_chat(resp.content, "assistant")
 
 from .sensor import sensor_voice_asr
 @router.post("/api/asr")
