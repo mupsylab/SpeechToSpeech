@@ -28,7 +28,7 @@ def stream_io(tts_text: Generator[str]):
             ).getvalue()
 
 prompt_speech_16k = load_wav("model_pretrained/ssy_short.wav", 16000)
-ModelOutput = Generator[dict[str, torch.Tensor]]
+ModelOutput = Generator[dict[str, torch.Tensor], None, None]
 def inference_zero_shot(tts_text: str) -> ModelOutput:
     return cosyvoice.inference_sft(
         tts_text, spk_id = "中文女",

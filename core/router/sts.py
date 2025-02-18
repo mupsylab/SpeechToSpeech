@@ -27,9 +27,9 @@ async def asr(files: Annotated[List[bytes], fastapi.File(description="wav or mp3
     resp = sensor(files[0], lang)
     if len(resp.text):
         cm.add_chat(resp.text, "user")
-    return fastapi.responses.JSONResponse(
-        cm.cache
-    )
+    return fastapi.responses.JSONResponse({
+        "history": list(map(lambda x: x.model_dump(), cm.cache))
+    })
 
 from ..model.cosy import stream_io
 @router.get("/api/tts")
