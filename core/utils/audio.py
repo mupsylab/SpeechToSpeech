@@ -10,11 +10,9 @@ def pack_ogg(io_buffer:BytesIO, data:np.ndarray, rate:int):
         audio_file.write(data)
     return io_buffer
 
-
 def pack_raw(io_buffer:BytesIO, data:np.ndarray, rate:int):
     io_buffer.write(data.tobytes())
     return io_buffer
-
 
 def pack_wav(io_buffer:BytesIO, data:np.ndarray, rate:int):
     io_buffer = BytesIO()
@@ -50,8 +48,6 @@ def pack_audio(io_buffer:BytesIO, data:np.ndarray, rate:int, media_type:str):
     io_buffer.seek(0)
     return io_buffer
 
-
-
 # from https://huggingface.co/spaces/coqui/voice-chat-with-mistral/blob/main/app.py
 def wave_header_chunk(frame_input=b"", channels=1, sample_width=2, sample_rate=32000):
     # This will create a wave header then append the frame input
@@ -67,3 +63,14 @@ def wave_header_chunk(frame_input=b"", channels=1, sample_width=2, sample_rate=3
     wav_buf.seek(0)
     return wav_buf.read()
 
+def webm2wav(webm: bytes):
+    wav = BytesIO()
+    process = subprocess.Popen([
+        'ffmpeg',
+        '-i', 'pipe:0',
+        'pipe:1'
+    ], stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    out, _ = process.communicate(input = webm)
+    wav.write(out)
+    wav.seek(0)
+    return wav
