@@ -37,7 +37,7 @@ lightning==2.2.4
 rich==13.7.1
 inflect==7.3.1
 hyperpyyaml==1.2.2
-openai-whisper==20231117
+openai-whisper==20240930
 # conda install -c conda-forge pynini=2.1.5 -y
 WeTextProcessing==1.0.3
 # python -c "import torch; print(torch.cuda.is_available())"
