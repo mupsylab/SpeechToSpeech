@@ -63,14 +63,13 @@ def wave_header_chunk(frame_input=b"", channels=1, sample_width=2, sample_rate=3
     wav_buf.seek(0)
     return wav_buf.read()
 
+import ffmpeg
 def webm2wav(webm: bytes):
-    wav = BytesIO()
-    process = subprocess.Popen([
-        'ffmpeg',
-        '-i', 'pipe:0',
-        'pipe:1'
-    ], stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    out, _ = process.communicate(input = webm)
-    wav.write(out)
-    wav.seek(0)
-    return wav
+    process = (
+        ffmpeg
+        .input('pipe:0')  # 通过管道输入
+        .output('pipe:1', format='wav')  # 通过管道输出为 WAV 格式
+        .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
+    )
+    stdout_data, _ = process.communicate(input=webm)
+    return stdout_data

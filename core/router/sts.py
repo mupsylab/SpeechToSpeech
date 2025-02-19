@@ -1,5 +1,4 @@
 from  __future__ import annotations
-import json
 import fastapi
 from typing import Annotated, List
 router = fastapi.APIRouter()
@@ -19,19 +18,29 @@ def generate_msg():
                 yield resp.content
         cm.add_chat(resp.content, "assistant")
 
+from ..model.cosy import stream_io
+@router.get("/api/tts")
+async def tts():
+    return fastapi.responses.StreamingResponse(stream_io(generate_msg()), media_type="audio/wav")
+
 from ..model.sensor import asr as sensor
+from ..utils.audio import webm2wav, wave_header_chunk
 @router.post("/api/asr")
 async def asr(files: Annotated[List[bytes], fastapi.File(description="wav or mp3 audios in 16KHz")],
-              keys: Annotated[str, fastapi.Form(description="name of each audio joined with comma")],
               lang: Annotated[str, fastapi.Form(description="language of audio content")] = "auto"):
-    resp = sensor(files[0], lang)
+    resp = sensor(webm2wav(files[0]), lang)
     if len(resp.text):
         cm.add_chat(resp.text, "user")
     return fastapi.responses.JSONResponse({
         "history": list(map(lambda x: x.model_dump(), cm.cache))
     })
 
-from ..model.cosy import stream_io
-@router.get("/api/tts")
-async def tts():
-    return fastapi.responses.StreamingResponse(stream_io(generate_msg()), media_type="audio/wav")
+
+with open("a.wav", "wb") as f:
+    f.write(wave_header_chunk(sample_rate=48000))
+@router.post("/api/test")
+async def test(files: Annotated[List[fastapi.UploadFile], fastapi.File(description="wav or mp3 audios in 16KHz")]):
+    file = files[0]
+    blob = await file.read()
+    with open("a.wav", "ab") as f:
+        f.write(blob)

@@ -9,6 +9,10 @@ const router = createRouter({
       path: "/",
       name: "sts-manual",
       component: view
+    }, {
+      path: "/test",
+      name: "test",
+      component: () => import("../view/test.vue")
     }
   ]
 });

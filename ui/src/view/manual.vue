@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { BaseAudioRecord, StreamAudioPlayer, VisualAudio } from '../util/audio';
 import { useSystemConfig } from '../store/Config';
+import { AudioPlayer } from '../util/audio/AudioPlayer';
+import { BaseAudioRecord } from '../util/audio/AudioRecord';
+import { VisualAudio } from '../util/audio/VisualAudio';
 
 const config = useSystemConfig();
 
-const ap = new StreamAudioPlayer();
+const ap = new AudioPlayer();
 ap.addEventListener("stop", () => {
     UserSpeech.value = true;
 });
@@ -13,9 +15,7 @@ ap.addEventListener("stop", () => {
 const ar = new BaseAudioRecord();
 ar.addEventListener("record", async (blob) => {
     const form = new FormData();
-    form.append("files", new File([blob], "key", { type: "audio/wav" }))
-    form.append("keys", "key");
-    form.append("lang", "zh");
+    form.append("files", new File([blob], "key", { type: "audio/webm" }))
 
     fetch(config.getURL("/api/asr"), {
         method: "POST",
@@ -23,7 +23,8 @@ ar.addEventListener("record", async (blob) => {
     })
     .then(r => r.text())
     .then(_ => {
-        ap.play(config.getURL(`/api/tts`));
+        ap.load(config.getURL(`/api/tts`))
+        ap.start();
     });
 });
 
@@ -54,7 +55,8 @@ const init = ref(false);
 const click = () => {
     if (!init.value) {
         init.value = true;
-        ap.play(config.getURL(`/api/tts`));
+        ap.load(config.getURL(`/api/tts`));
+        ap.start();
     } else {
         if (!UserSpeech.value) return;
         UserSpeech.value = false;
