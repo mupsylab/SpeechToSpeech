@@ -20,7 +20,7 @@ declare function registerProcessor(
 ): void;
 
 class RecordProcessor extends AudioWorkletProcessor {
-    process(inputs: Float32Array[][], outputs: Float32Array[][], parameters: Record<string, Float32Array>): boolean {
+    process(inputs: Float32Array[][], outputs: Float32Array[][], _: Record<string, Float32Array>): boolean {
         const lenFrame = inputs.length; // 音频帧
         if (!lenFrame) return true;
         const lenChannel = inputs[0].length; // 音频通道数

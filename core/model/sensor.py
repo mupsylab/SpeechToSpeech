@@ -1,4 +1,6 @@
 import re
+import numpy as np
+import torch
 import torchaudio
 from io import BytesIO
 from funasr.utils.postprocess_utils import rich_transcription_postprocess
@@ -44,6 +46,7 @@ def asr(file_wav: bytes, lang: Language = "auto"):
                                 ban_emo_unk = False,
                                 fs = audio_fs,
                                 **model.kwargs)
+    torch.cuda.empty_cache()
     for item in res[0]:
         return Response(
             raw_text = item["text"],
@@ -66,3 +69,27 @@ def asr_adv(file_path: str, lang: Language = "auto"):
         clean_text = re.sub(r"<\|.*\|>", "", text, 0, re.MULTILINE)
     )
 
+def asr_array(array: np.ndarray, sampleRate: int, lang: Language = "auto"):
+    res = model.model.inference(data_in = torch.from_numpy(array),
+                                language = lang,
+                                fs = sampleRate,
+                                use_itn = False,
+                                ban_emo_unk = False,
+                                **model.kwargs)
+    torch.cuda.empty_cache()
+    for item in res[0]:
+        return Response(
+            raw_text = item["text"],
+            text = rich_transcription_postprocess(item["text"]),
+            clean_text = re.sub(r"<\|.*\|>", "", item["text"], 0, re.MULTILINE),
+        )
+
+from typing import Tuple, List
+
+VADItem = List[dict[str, List[List[int]]]]
+VADParam = dict[str, float]
+
+def vad_array(array: np.ndarray, sampleRate: int) -> Tuple[VADItem, VADParam]:
+    [items, param] = model.vad_model.inference(data_in = [array], key = ["temp"], fs = sampleRate, **model.vad_kwargs)
+    torch.cuda.empty_cache()
+    return items, param

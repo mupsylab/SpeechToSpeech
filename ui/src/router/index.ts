@@ -6,13 +6,14 @@ const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: "/",
+      path: "/manual",
       name: "sts-manual",
-      component: view
+      component: view,
+      alias: "/"
     }, {
-      path: "/test",
-      name: "test",
-      component: () => import("../view/test.vue")
+      path: "/auto",
+      name: "sts-auto",
+      component: () => import("../view/auto.vue")
     }
   ]
 });

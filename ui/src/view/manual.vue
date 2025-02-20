@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useSystemConfig } from '../store/Config';
 import { AudioPlayer } from '../util/audio/AudioPlayer';
 import { BaseAudioRecord } from '../util/audio/AudioRecord';
@@ -7,33 +7,34 @@ import { VisualAudio } from '../util/audio/VisualAudio';
 
 const config = useSystemConfig();
 
-const ap = new AudioPlayer();
-ap.addEventListener("stop", () => {
-    UserSpeech.value = true;
-});
-
-const ar = new BaseAudioRecord();
-ar.addEventListener("record", async (blob) => {
-    const form = new FormData();
-    form.append("files", new File([blob], "key", { type: "audio/webm" }))
-
-    fetch(config.getURL("/api/asr"), {
-        method: "POST",
-        body: form
-    })
-    .then(r => r.text())
-    .then(_ => {
-        ap.load(config.getURL(`/api/tts`))
-        ap.start();
+let ap: AudioPlayer;
+let ar: BaseAudioRecord;
+const initMethod = () => {
+    ap = new AudioPlayer();
+    ap.addEventListener("stop", () => {
+        UserSpeech.value = true;
     });
-});
 
-onMounted(() => {
+    ar = new BaseAudioRecord();
+    ar.addEventListener("record", async (blob) => {
+        const form = new FormData();
+        form.append("files", new File([blob], "key", { type: "audio/webm" }))
+
+        fetch(config.getURL("/api/asr"), {
+            method: "POST",
+            body: form
+        })
+        .then(r => r.text())
+        .then(_ => {
+            ap.load(config.getURL(`/api/tts`))
+            ap.start();
+        });
+    });
     new VisualAudio({
         width: 400,
         height: 400
     }).start("#visualizer", ar, ap);
-});
+};
 
 /**
  * 下面的是判断轮到 用户 还是 机器人 说话
@@ -51,10 +52,10 @@ watch(UserSpeech, (n) => {
  * 下面是激活聊天, 避免错误
  */
 const init = ref(false);
-
 const click = () => {
     if (!init.value) {
         init.value = true;
+        initMethod();
         ap.load(config.getURL(`/api/tts`));
         ap.start();
     } else {
