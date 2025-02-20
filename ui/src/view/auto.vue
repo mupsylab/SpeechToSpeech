@@ -7,18 +7,28 @@ import { VisualAudio } from '../util/audio/VisualAudio';
 
 const config = useSystemConfig();
 
-let ws = new WebSocket(config.getWS("/ws"));
-ws.addEventListener("open", () => {
-    ws.send(JSON.stringify({
-        action: "init",
-        param: {
-            sampleRate: ar.sampleRate
+function createWS() {
+    const ws = new WebSocket(config.getWS("/ws"));
+    ws.addEventListener("open", () => {
+        ws.send(JSON.stringify({
+            action: "init",
+            param: {
+                sampleRate: ar.sampleRate
+            }
+        }));
+    });
+    ws.addEventListener("message", (e) => {
+        if (e.data == "tts:start") {
+            ap.load(config.getURL("/api/tts"));
+            ap.start();
         }
-    }));
-});
+    });
+    return ws;
+}
+let ws = createWS();
 ws.addEventListener("close", () => {
     // 一直保持链接
-    ws = new WebSocket(config.getWS("/ws"));
+    ws = createWS();
 });
 
 const ap = new AudioPlayer();

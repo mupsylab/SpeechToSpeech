@@ -68,14 +68,24 @@ export class StreamAudioRecord extends AudioBase {
                 this.configureAnalyser();
                 source.connect(this.analyser);
 
+                const blob: Blob[] = [];
                 const workletNode = new AudioWorkletNode(this.audioContext, "record-processor");
                 workletNode.port.onmessage =  (e) => {
-                    const blob = new Blob([e.data.audio], { type: "audio/wav" });
-                    this.dispatchEvent("record", blob);
+                    blob.push(e.data.audio);
+                    // 假设采样率 48000，一秒钟48000个样本点
+                    // 一次会提供 32 个样本
+                    if (blob.length >= 500) {
+                        this.dispatchEvent("record", new Blob(blob, { type: "audio/wav" }));
+                        blob.splice(0, blob.length);
+                    }
                 }
                 source.connect(workletNode);
 
                 this.clean = () => {
+                    if (blob.length > 0) {
+                        this.dispatchEvent("record", new Blob(blob, { type: "audio/wav" }));
+                        blob.splice(0, blob.length);
+                    }
                     workletNode.disconnect();
                     source.disconnect();
                     this.analyser?.disconnect();
