@@ -32,7 +32,7 @@ opencc==1.1.1; sys_platform == 'linux'
 conformer==0.3.2
 # deepspeed==0.14.2; sys_platform == 'linux'
 diffusers==0.29.0
-lightning==2.2.4
+lightning==2.3.3
 
 rich==13.7.1
 inflect==7.3.1
