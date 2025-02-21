@@ -35,6 +35,7 @@ export class AudioPlayer extends AudioBase {
     }
     stop() {
         this.audioElement?.pause();
+        this.audioElement.src = "#";
         this.dispatchEvent("stop");
     }
 }

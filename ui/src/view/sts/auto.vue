@@ -1,34 +1,33 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { useSystemConfig } from '../store/Config';
-import { AudioPlayer } from '../util/audio/AudioPlayer';
-import { StreamAudioRecord } from '../util/audio/AudioRecord';
-import { VisualAudio } from '../util/audio/VisualAudio';
+import { useSystemConfig } from '../../store/Config';
+import { AudioPlayer } from '../../util/audio/AudioPlayer';
+import { StreamAudioRecord } from '../../util/audio/AudioRecord';
+import { VisualAudio } from '../../util/audio/VisualAudio';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const config = useSystemConfig();
 
-function createWS() {
-    const ws = new WebSocket(config.getWS("/ws"));
-    ws.addEventListener("open", () => {
-        ws.send(JSON.stringify({
-            action: "init",
-            param: {
-                sampleRate: ar.sampleRate
-            }
-        }));
-    });
-    ws.addEventListener("message", (e) => {
-        if (e.data == "tts:start") {
-            ap.load(config.getURL("/api/tts"));
-            ap.start();
+const ws = new WebSocket(config.getWS("/ws"));
+ws.addEventListener("open", () => {
+    ws.send(JSON.stringify({
+        action: "init",
+        param: {
+            sampleRate: ar.sampleRate
         }
-    });
-    return ws;
-}
-let ws = createWS();
+    }));
+});
+ws.addEventListener("message", (e) => {
+    if (e.data == "tts:start") {
+        ap.stop();
+        ap.load(config.getURL("/api/tts"));
+        ap.start();
+    }
+});
 ws.addEventListener("close", () => {
-    // 一直保持链接
-    ws = createWS();
+    // 链接的话，就返回首页
+    router.push("/");
 });
 
 const ap = new AudioPlayer();
@@ -104,9 +103,9 @@ watch(record, (n) => {
 
 .tip {
     position: absolute;
-    top: 50%; 
-    left: 50%; 
-    transform: translate(-50%, -50%); 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     cursor: pointer;
 }
 </style>

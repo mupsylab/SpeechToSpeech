@@ -1,10 +1,13 @@
 from __future__ import annotations
 import os
 import re
+import logging
 import openai
 from typing import Generator
 
 from . import ChatResponse, ChatMessage
+
+logger = logging.getLogger(__name__)
 
 client = openai.OpenAI(
     base_url = os.getenv("OPENAI_BASE_URL", None),
@@ -24,6 +27,7 @@ def chat(messages: list[ChatMessage]) -> Generator[ChatResponse]:
     # 最后将整个句子保存
     global_content = []
     content = []
+    logging.debug("start llm generate msg")
     for resp in response:
         c: str = resp.choices[0].delta.content
         if c is None:
@@ -53,7 +57,7 @@ def chat(messages: list[ChatMessage]) -> Generator[ChatResponse]:
     if len(content):
         # 还有剩下的内容
         yield ChatResponse(type = "sentence", content = "".join(content))
-
+    logging.debug("stop llm generate message")
     yield ChatResponse(type = "finish", content = "".join(global_content))
 
 

@@ -42,6 +42,7 @@ class WebsocketClient:
         if audio_len < 500:
             return False
         [items, param] = vad_array(array, sampleRate = self.sampleRate)
+        logger.debug(items)
         if not len(items[0]["value"]) or \
             (len(items[0]["value"]) == 1 and items[0]["value"][0][0] == 0):
             # 没有有效的音频, 清空缓存
@@ -68,6 +69,7 @@ class WebsocketClient:
                 self.chunk = b""
                 if len(resp.clean_text):
                     # 有字，代表识别正确
+                    logger.debug("receive asr text: %s" % resp.clean_text)
                     cm.add_chat(resp.clean_text, "user")
                     await self.ws.send_text("tts:start")
 
@@ -85,6 +87,7 @@ class WebsocketClient:
                 logger.error(f"Error processing action: {e}", stack_info=True)
             finally:
                 self._task_queue.task_done()
+
 
     async def run(self):
         """启动 WebSocket 客户端"""
