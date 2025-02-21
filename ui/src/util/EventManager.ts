@@ -1,14 +1,14 @@
 type EventCallback = (...args: any[]) => void;
 
-export class EventManager {
-  private events: Map<string, EventCallback[]>;
+export class EventManager<EventType extends string | number | symbol> {
+  private events: Map<EventType, EventCallback[]>;
 
   constructor() {
     this.events = new Map();
   }
 
   // 注册事件
-  addEventListener(event: string, callback: EventCallback): void {
+  addEventListener(event: EventType, callback: EventCallback): void {
     if (!this.events.has(event)) {
       this.events.set(event, []);
     }
@@ -16,7 +16,7 @@ export class EventManager {
   }
 
   // 移除事件
-  removeEventListener(event: string, callback: EventCallback): void {
+  removeEventListener(event: EventType, callback: EventCallback): void {
     const listeners = this.events.get(event);
     if (listeners) {
       this.events.set(event, listeners.filter(cb => cb !== callback));
@@ -24,7 +24,7 @@ export class EventManager {
   }
 
   // 触发事件
-  dispatchEvent(event: string, ...args: any[]): void {
+  dispatchEvent(event: EventType, ...args: any[]): void {
     const listeners = this.events.get(event);
     if (listeners) {
       listeners.forEach(callback => callback(...args));

@@ -37,9 +37,6 @@ export class BaseAudioRecord extends AudioBase {
                     this.dispatchEvent("stop");
                 }
             })
-            .catch(e => {
-                this.dispatchEvent("error", e);
-            });
     }
     stop() {
         this.clean();
@@ -94,9 +91,6 @@ export class StreamAudioRecord extends AudioBase {
                     this.dispatchEvent("stop");
                 }
             })
-            .catch(e => {
-                this.dispatchEvent("error", e);
-            });
     }
 
     stop() {

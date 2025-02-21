@@ -1,6 +1,6 @@
 import { EventManager } from "../EventManager";
 
-export class AudioBase extends EventManager {
+export class AudioBase extends EventManager<'start' | 'record' | 'stop'> {
     private options: AnalyserOptions;
     constructor(options?: Partial<AnalyserOptions>) {
         super();
