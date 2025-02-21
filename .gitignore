@@ -6,3 +6,4 @@ runtime
 data/log
 
 .env
+package-lock.json
