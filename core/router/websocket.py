@@ -4,6 +4,8 @@ import asyncio
 import numpy as np
 from pydantic import BaseModel
 from typing import Literal
+import logging
+logger = logging.getLogger(__name__)
 
 from ..model.sensor import vad_array, asr_array
 from .sts import cm
@@ -80,7 +82,7 @@ class WebsocketClient:
                     break  # 收到终止信号
                 await self.action(wm)
             except Exception as e:
-                print(f"Error processing action: {e}")
+                logger.error(f"Error processing action: {e}", stack_info=True)
             finally:
                 self._task_queue.task_done()
 
@@ -97,7 +99,7 @@ class WebsocketClient:
                 # 将任务放入队列，由后台 worker 处理
                 await self._task_queue.put(wm)
         except fastapi.WebSocketDisconnect:
-            print("Client disconnected")
+            logger.error(f"Client disconnected")
         finally:
             # 清理资源
             self._running = False

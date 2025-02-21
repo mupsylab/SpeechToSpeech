@@ -3,6 +3,6 @@ TEMP
 model_pretrained
 runtime
 
-data/interview
+data/log
 
 .env
