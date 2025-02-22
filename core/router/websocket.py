@@ -24,33 +24,40 @@ class WebsocketMessage(BaseModel):
 
 class WebsocketClient:
     def __init__(self, ws: fastapi.WebSocket) -> None:
+        self.rest_time = 500 # 讲话时，最长允许的停顿时间, 单位ms
+        
         self.ws = ws
         self.sampleRate: int = 0
-        self.chunk: bytes = b""
+        self.audioBuffer: np.ndarray = np.array([], dtype=np.float32)
 
         self._task_queue = asyncio.Queue()  # 任务队列
         self._running = True
 
-    def audio_array(self):
-        array = np.frombuffer(self.chunk, dtype=np.int16).astype(np.float32)
-        return array
+    def load_audio_buffer(self, blob):
+        array = np.frombuffer(blob, dtype=np.int16).astype(np.float32)
+        self.audioBuffer = np.concatenate([self.audioBuffer, array], dtype = np.float32, axis = 0)
 
     async def valid(self):
         # 验证音频是否存在声音，且停止讲话
-        array = self.audio_array()
+        array = self.audioBuffer
         audio_len = (array.shape[0] / self.sampleRate) * 1000 # ms
-        if audio_len < 500:
-            return False
+
         [items, param] = vad_array(array, sampleRate = self.sampleRate)
         logger.debug(items)
-        if not len(items) or \
-            (len(items) == 1 and items[0][0] == 0):
+        
+        if not len(items):
             # 没有有效的音频, 清空缓存
-            self.chunk = b""
+            self.audioBuffer: np.ndarray = np.array([], dtype=np.float32)
             return False
-        await self.ws.send_text("tts:stop")
-        if audio_len - items[-1][1] > 200:
-            # 超过200ms没有新的语音输入，意味着结束讲话
+
+        if audio_len - items[-1][1] > self.rest_time:
+            # 超过指定时长没有新的语音输入，意味着结束讲话
+            asr = asr_array(self.audioBuffer, sampleRate=self.sampleRate, lang="zh")
+            self.audioBuffer: np.ndarray = np.array([], dtype=np.float32)
+            if len(asr.clean_text):
+                cm.add_chat(asr.clean_text, "user")
+                logger.debug("asr result: %s" % asr.clean_text)
+                await self.ws.send_text("tts:start")
             return True
         return False
 
@@ -62,17 +69,8 @@ class WebsocketClient:
             return
         elif wm.action == "record":
             blob = base64.b64decode(wm.param["audio"])
-            self.chunk += blob
-            if await self.valid():
-                # 说话完成
-                resp = asr_array(self.audio_array(), self.sampleRate)
-                self.chunk = b""
-                if len(resp.clean_text):
-                    # 有字，代表识别正确
-                    logger.debug("receive asr text: %s" % resp.clean_text)
-                    cm.add_chat(resp.clean_text, "user")
-                    await self.ws.send_text("tts:start")
-
+            self.load_audio_buffer(blob)
+            await self.valid()
 
     async def _worker(self):
         """后台任务处理 worker"""
