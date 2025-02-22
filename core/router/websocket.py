@@ -43,13 +43,13 @@ class WebsocketClient:
             return False
         [items, param] = vad_array(array, sampleRate = self.sampleRate)
         logger.debug(items)
-        if not len(items[0]["value"]) or \
-            (len(items[0]["value"]) == 1 and items[0]["value"][0][0] == 0):
+        if not len(items) or \
+            (len(items) == 1 and items[0][0] == 0):
             # 没有有效的音频, 清空缓存
             self.chunk = b""
             return False
         await self.ws.send_text("tts:stop")
-        if audio_len - items[0]["value"][-1][1] > 200:
+        if audio_len - items[-1][1] > 200:
             # 超过200ms没有新的语音输入，意味着结束讲话
             return True
         return False
