@@ -1,6 +1,7 @@
 import base64
 import fastapi
 import asyncio
+import noisereduce
 import numpy as np
 from pydantic import BaseModel
 from typing import Literal
@@ -8,7 +9,20 @@ import logging
 logger = logging.getLogger(__name__)
 
 from ..model.sensor import vad_array, asr_array
-from .sts import cm
+"""
+LLM聊天管理
+"""
+from ..llm import ChatManager
+from ..llm.chatgpt import chat
+cm = ChatManager()
+def generate_msg():
+    if len(cm.cache) and cm.cache[-1].role == "assistant":
+        yield cm.cache[-1].content
+    else:
+        for resp in chat(cm.get_llm_message()):
+            if resp.type == "sentence":
+                yield resp.content
+        cm.add_chat(resp.content, "assistant")
 
 router = fastapi.APIRouter()
 @router.websocket("/ws")
@@ -16,6 +30,10 @@ async def ws(websocket: fastapi.WebSocket):
     await websocket.accept()
     await WebsocketClient(websocket).run()
 
+from ..model.cosy import stream_io
+@router.get("/api/tts/stream")
+async def tts():
+    return fastapi.responses.StreamingResponse(stream_io(generate_msg()), media_type="audio/wav")
 
 class WebsocketMessage(BaseModel):
     action: Literal["init", "record", "finish"]
@@ -24,7 +42,8 @@ class WebsocketMessage(BaseModel):
 
 class WebsocketClient:
     def __init__(self, ws: fastapi.WebSocket) -> None:
-        self.rest_time = 500 # 讲话时，最长允许的停顿时间, 单位ms
+        self.rest_time = 800 # 讲话时，最长允许的停顿时间, 单位ms
+        self.min_audio_frame_len = 25 * 0.001 # 最小音频帧应该保证25毫秒
         
         self.ws = ws
         self.sampleRate: int = 0
@@ -33,9 +52,31 @@ class WebsocketClient:
         self._task_queue = asyncio.Queue()  # 任务队列
         self._running = True
 
+    def _tran_ms_to_audioframe(self, ms: int):
+        return int(ms / 1000 * self.sampleRate)
+
     def load_audio_buffer(self, blob):
         array = np.frombuffer(blob, dtype=np.int16).astype(np.float32)
         self.audioBuffer = np.concatenate([self.audioBuffer, array], dtype = np.float32, axis = 0)
+
+    def asr(self, item: list[int]):
+        [startPos, stopPos] = [self._tran_ms_to_audioframe(item[0]), self._tran_ms_to_audioframe(item[1])]
+        audioBuffer = self.audioBuffer[startPos:stopPos]
+        if audioBuffer.mean() < 0:
+            return False
+
+        audioLen = audioBuffer.shape[0]
+        audioMinLen = int(self.sampleRate * self.min_audio_frame_len)
+        audioPad = audioMinLen - audioLen
+        if audioPad > 0:
+            audioBuffer = np.concatenate([audioBuffer, np.zeros(audioPad, dtype=np.float32)], axis = 0, dtype=np.float32)
+
+        asr = asr_array(audioBuffer, sampleRate=self.sampleRate, lang="zh")
+        if len(asr.clean_text):
+            logger.debug("asr result: %s" % (asr.clean_text))
+            cm.add_chat(asr.clean_text, "user")
+            return True
+        return False
 
     async def valid(self):
         # 验证音频是否存在声音，且停止讲话
@@ -44,22 +85,25 @@ class WebsocketClient:
 
         [items, param] = vad_array(array, sampleRate = self.sampleRate)
         logger.debug(items)
-        
+
         if not len(items):
             # 没有有效的音频, 清空缓存
-            self.audioBuffer: np.ndarray = np.array([], dtype=np.float32)
+            self.audioBuffer = np.array([], dtype=np.float32)
             return False
 
+        if len(items) > 1:
+            # 超过一段的语音内容，识别前几段
+            for item in items[:-1]:
+                if self.asr(item):
+                    await self.ws.send_text("tts:stop")
         if audio_len - items[-1][1] > self.rest_time:
             # 超过指定时长没有新的语音输入，意味着结束讲话
-            asr = asr_array(self.audioBuffer, sampleRate=self.sampleRate, lang="zh")
-            self.audioBuffer: np.ndarray = np.array([], dtype=np.float32)
-            if len(asr.clean_text):
-                cm.add_chat(asr.clean_text, "user")
-                logger.debug("asr result: %s" % asr.clean_text)
+            if self.asr(items[-1]):
                 await self.ws.send_text("tts:start")
-            return True
-        return False
+            self.audioBuffer = np.array([], dtype=np.float32)
+        elif len(items) > 1:
+            # 删除前几段
+            self.audioBuffer = self.audioBuffer[self._tran_ms_to_audioframe(items[-1][0]):]
 
     async def action(self, wm: WebsocketMessage):
         if wm.action == "init":
@@ -82,7 +126,7 @@ class WebsocketClient:
                     break  # 收到终止信号
                 await self.action(wm)
             except Exception as e:
-                logger.error(f"Error processing action: {e}", stack_info=True)
+                logger.error(f"Error processing action: {e}", stack_info=True, exc_info=1)
             finally:
                 self._task_queue.task_done()
 

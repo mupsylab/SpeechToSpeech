@@ -1,5 +1,5 @@
 import { AudioBase } from ".";
-import RecordProcessor from "./RecordProcessor?url";
+import RecordProcessor from "./RecordProcessor?worker&url";
 
 export class BaseAudioRecord extends AudioBase {
     private audioContext: AudioContext;

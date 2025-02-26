@@ -21,13 +21,16 @@ ws.addEventListener("open", () => {
 ws.addEventListener("message", (e) => {
     if (e.data == "tts:start") {
         ap.stop();
-        ap.load(config.getURL("/api/tts"));
+        ap.load(config.getURL("/api/tts/stream"));
         ap.start();
+    } else if (e.data == "tts:stop") {
+        ap.stop();
     }
 });
 ws.addEventListener("close", () => {
     // 链接的话，就返回首页
     router.push("/");
+    location.reload();
 });
 
 const ap = new AudioPlayer();
