@@ -28,5 +28,17 @@ async def read_index():
 app.mount("/", StaticFiles(directory="ui/dist"), name = "static")
 
 if __name__ == "__main__":
+    import json
     import uvicorn
-    uvicorn.run(app, host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", "8000")))
+    from logging.config import dictConfig
+    with open("data/config/logging.json", "r") as f:
+        config = json.loads(f.read())
+    dictConfig(config)
+
+    if not os.path.exists("data/log"):
+        os.mkdir("data/log")
+
+    uvicorn.run(app, 
+                host=os.getenv("HOST", "0.0.0.0"), 
+                port=int(os.getenv("PORT", "8000")),
+                log_config=config)

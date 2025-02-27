@@ -1,8 +1,12 @@
 """
 LLM聊天管理
 """
+import os
 from ..llm import ChatManager
-from ..llm.chatgpt import chat
+
+module = __import__(f"core.llm.{os.getenv('LLM', 'chatgpt')}", globals(), locals(), ["chat"])
+chat = module.chat
+
 cm = ChatManager()
 def generate_msg():
     if len(cm.cache) and cm.cache[-1].role == "assistant":
