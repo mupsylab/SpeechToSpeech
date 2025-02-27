@@ -41,3 +41,9 @@ def inference_instruct(tts_text: str) -> ModelOutput:
         prompt_speech_16k, stream=True, text_frontend=False
     )
 
+# 由于cosyvoice在初次运行的时候，会加载一些东西。为了避免这个延迟，启动时先自动跑一遍
+for i in cosyvoice.inference_sft(
+    "hi", spk_id = "中文女",
+    stream = True, text_frontend = False
+):
+    continue
