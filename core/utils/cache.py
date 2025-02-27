@@ -9,11 +9,11 @@ class Cache():
         if not os.path.exists(self.SAVE_PATH):
             os.mkdir(self.SAVE_PATH)
 
-    def save(self, data) -> int:
+    def save(self, data, format: str = None) -> int:
         if not os.path.exists(self.SAVE_PATH):
             os.mkdir(self.SAVE_PATH)
         cache_id = generate_snowflake_id()
-        path = self.get_path(cache_id)
+        path = self.get_path(cache_id) if format is None else "%s.%s" % (self.get_path(cache_id), format)
         if isinstance(data, str):
             with open(path, "w", encoding="utf-8") as f:
                 f.write(data)

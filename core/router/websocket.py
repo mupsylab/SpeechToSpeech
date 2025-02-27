@@ -9,20 +9,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 from ..model.sensor import vad_array, asr_array
-"""
-LLM聊天管理
-"""
-from ..llm import ChatManager
-from ..llm.chatgpt import chat
-cm = ChatManager()
-def generate_msg():
-    if len(cm.cache) and cm.cache[-1].role == "assistant":
-        yield cm.cache[-1].content
-    else:
-        for resp in chat(cm.get_llm_message()):
-            if resp.type == "sentence":
-                yield resp.content
-        cm.add_chat(resp.content, "assistant")
+from . import cm, generate_msg
+from ..utils.cache import cache
+from ..utils.audio import wave_header_chunk
 
 router = fastapi.APIRouter()
 @router.websocket("/ws")
@@ -55,25 +44,35 @@ class WebsocketClient:
     def _tran_ms_to_audioframe(self, ms: int):
         return int(ms / 1000 * self.sampleRate)
 
-    def load_audio_buffer(self, blob):
+    def _load_audio_buffer(self, blob):
         array = np.frombuffer(blob, dtype=np.int16).astype(np.float32)
-        self.audioBuffer = np.concatenate([self.audioBuffer, array], dtype = np.float32, axis = 0)
+        array = noisereduce.reduce_noise(array, self.sampleRate, sigmoid_slope_nonstationary=True)
+        if array.std() > 300:
+            # 如果音频片段达到了要求
+            self.audioBuffer = np.concatenate([self.audioBuffer, array], dtype = np.float32, axis = 0)
+            return True
+        else:
+            # 插入空白音频片段，避免问题
+            self.audioBuffer = np.concatenate([self.audioBuffer, np.zeros(array.shape[0], dtype=np.float32)], dtype = np.float32, axis = 0)
+            return False
 
     def asr(self, item: list[int]):
         [startPos, stopPos] = [self._tran_ms_to_audioframe(item[0]), self._tran_ms_to_audioframe(item[1])]
         audioBuffer = self.audioBuffer[startPos:stopPos]
-        if audioBuffer.mean() < 0:
-            return False
 
-        audioLen = audioBuffer.shape[0]
-        audioMinLen = int(self.sampleRate * self.min_audio_frame_len)
-        audioPad = audioMinLen - audioLen
+        power = audioBuffer.std()
+        # if abs(power) < 1:
+        #     # 音频能量不足，不进行识别
+        #     return False
+        cid = cache.save(wave_header_chunk(sample_rate=self.sampleRate) + audioBuffer.astype(np.int16).tobytes(), "wav")
+
+        audioPad = int(self.sampleRate * self.min_audio_frame_len) - audioBuffer.shape[0]
         if audioPad > 0:
             audioBuffer = np.concatenate([audioBuffer, np.zeros(audioPad, dtype=np.float32)], axis = 0, dtype=np.float32)
 
         asr = asr_array(audioBuffer, sampleRate=self.sampleRate, lang="zh")
+        logger.debug("cid: %s, \npower: %s, \nasr result: %s" % (cid, power, asr.clean_text))
         if len(asr.clean_text):
-            logger.debug("asr result: %s" % (asr.clean_text))
             cm.add_chat(asr.clean_text, "user")
             return True
         return False
@@ -112,8 +111,8 @@ class WebsocketClient:
             # 还未初始化
             return
         elif wm.action == "record":
-            blob = base64.b64decode(wm.param["audio"])
-            self.load_audio_buffer(blob)
+            if not self._load_audio_buffer(base64.b64decode(wm.param["audio"])):
+                await self.ws.send_text("asr:toolow")
             await self.valid()
 
     async def _worker(self):

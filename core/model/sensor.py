@@ -40,6 +40,7 @@ def asr(file_wav: bytes, lang: Language = "auto"):
     data_or_path_or_list = data_or_path_or_list.mean(0)
     file_io.close()
 
+    model.model.eval()
     res = model.model.inference(data_in = [data_or_path_or_list],
                                 language = lang,
                                 use_itn = False,
@@ -58,6 +59,7 @@ def asr_adv(file_path: str, lang: Language = "auto"):
     if not os.path.exists(file_path):
         return {}
 
+    model.model.eval()
     res = model.generate([file_path], cache = {},
                          lanuage = lang, use_itn=True,
                          batch_size=1,
@@ -70,6 +72,7 @@ def asr_adv(file_path: str, lang: Language = "auto"):
     )
 
 def asr_array(array: np.ndarray, sampleRate: int, lang: Language = "auto"):
+    model.model.eval()
     res = model.model.inference(data_in = torch.from_numpy(array),
                                 language = lang,
                                 fs = sampleRate,
@@ -85,11 +88,11 @@ def asr_array(array: np.ndarray, sampleRate: int, lang: Language = "auto"):
         )
 
 from typing import Tuple, List
-
 VADItem = List[List[int]]
 VADParam = dict[str, float]
 
 def vad_array(array: np.ndarray, sampleRate: int) -> Tuple[VADItem, VADParam]:
+    model.vad_model.eval()
     [items, param] = model.vad_model.inference(data_in = [array], key = ["temp"], fs = sampleRate, **model.vad_kwargs)
     torch.cuda.empty_cache()
     return items[0]["value"], param
