@@ -60,18 +60,12 @@ class WebsocketClient:
         [startPos, stopPos] = [self._tran_ms_to_audioframe(item[0]), self._tran_ms_to_audioframe(item[1])]
         audioBuffer = self.audioBuffer[startPos:stopPos]
 
-        power = audioBuffer.std()
-        # if abs(power) < 1:
-        #     # 音频能量不足，不进行识别
-        #     return False
-        cid = cache.save(wave_header_chunk(sample_rate=self.sampleRate) + audioBuffer.astype(np.int16).tobytes(), "wav")
-
         audioPad = int(self.sampleRate * self.min_audio_frame_len) - audioBuffer.shape[0]
         if audioPad > 0:
             audioBuffer = np.concatenate([audioBuffer, np.zeros(audioPad, dtype=np.float32)], axis = 0, dtype=np.float32)
 
         asr = asr_array(audioBuffer, sampleRate=self.sampleRate, lang="zh")
-        logger.debug("cid: %s, \npower: %s, \nasr result: %s" % (cid, power, asr.clean_text))
+        logger.debug("asr result: %s" % (asr.clean_text))
         if len(asr.clean_text):
             cm.add_chat(asr.clean_text, "user")
             return True
