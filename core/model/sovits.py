@@ -40,7 +40,7 @@ def check_params(req:dict):
         raise ValueError(f"text_split_method:{text_split_method} is not supported")
     return None
 
-async def tts_handle(req:dict):
+def tts_handle(req:dict):
     streaming_mode = req.get("streaming_mode", False)
     return_fragment = req.get("return_fragment", False)
     media_type = req.get("media_type", "wav")

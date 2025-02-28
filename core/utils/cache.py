@@ -1,9 +1,9 @@
 import os
-
+from glob import glob
 from .snowflake import generate_snowflake_id
 
 class Cache():
-    SAVE_PATH = "TEMP"
+    SAVE_PATH = "data/TEMP"
 
     def __init__(self) -> None:
         if not os.path.exists(self.SAVE_PATH):
@@ -36,6 +36,9 @@ class Cache():
                 return f.read()
 
     def get_path(self, cid: int):
+        path = glob("%s/%s*" % (self.SAVE_PATH, cid))
+        if len(path):
+            return path[0]
         return os.path.join(self.SAVE_PATH, str(cid))
 
 cache = Cache()

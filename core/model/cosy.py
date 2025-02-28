@@ -5,6 +5,8 @@ import torch
 import numpy as np
 from typing import Generator
 from io import BytesIO
+from logging import getLogger
+logger = getLogger(__name__)
 
 from model.cosyvoice.cli.cosyvoice import CosyVoice2
 from model.cosyvoice.utils.file_utils import load_wav
@@ -17,9 +19,11 @@ cosyvoice: CosyVoice2 = load()
 
 def stream_io(tts_text: Generator[str]):
     yield wave_header_chunk(sample_rate = cosyvoice.sample_rate)
+    logger.debug("start generate tts")
     for text in tts_text:
         model_output = inference_instruct(text)
         for item in model_output:
+            logger.debug("generate tts...")
             yield pack_audio(
                 BytesIO(),
                 (item["tts_speech"] * (2 ** 15)).numpy().astype(np.int16),

@@ -5,13 +5,11 @@ import noisereduce
 import numpy as np
 from pydantic import BaseModel
 from typing import Literal
-import logging
-logger = logging.getLogger(__name__)
+from logging import getLogger
+logger = getLogger(__name__)
 
 from ..model.sensor import vad_array, asr_array
 from . import cm, generate_msg
-from ..utils.cache import cache
-from ..utils.audio import wave_header_chunk
 
 router = fastapi.APIRouter()
 @router.websocket("/ws")

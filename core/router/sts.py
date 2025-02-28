@@ -1,10 +1,12 @@
 from  __future__ import annotations
 import fastapi
 from typing import Annotated, List
+from logging import getLogger
+logger = getLogger(__name__)
+
 router = fastapi.APIRouter()
 
 from . import cm, generate_msg
-
 from ..model.cosy import stream_io
 @router.get("/api/tts")
 async def tts():
