@@ -3,13 +3,22 @@ import sys
 import json
 from io import BytesIO
 from typing import Generator
-
 sys.path.append("./model/GPT_SoVITS")
+from logging import getLogger
+logger = getLogger(__name__)
+
 from model.GPT_SoVITS.TTS_infer_pack.TTS import TTS, TTS_Config
 from model.GPT_SoVITS.TTS_infer_pack.text_segmentation_method import get_method_names as get_cut_method_names
 
-from ..utils.cache import cache
 from ..utils.audio import wave_header_chunk, pack_audio
+
+def stream_io(tts_text: Generator[str]):
+    logger.debug("start generate tts")
+    for text in tts_text:
+        model_output = tts_handle(TTS_Request(text, "zh", streaming_mode=True).model_dump())
+        for item in model_output:
+            logger.debug("generate tts...")
+            yield item
 
 tts_config = TTS_Config(os.getenv("GPT_SoVITS", "model_pretrained/GPT_SoVITS/tts_infer.yaml"))
 tts_pipeline = TTS(tts_config)

@@ -7,7 +7,7 @@ logger = getLogger(__name__)
 router = fastapi.APIRouter()
 
 from . import cm, generate_msg
-from ..model.cosy import stream_io
+from ..model.sovits import stream_io
 @router.get("/api/tts")
 async def tts():
     return fastapi.responses.StreamingResponse(stream_io(generate_msg()), media_type="audio/wav")
