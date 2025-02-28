@@ -1,6 +1,6 @@
+from __future__ import annotations
 import os
 import sys
-import json
 from io import BytesIO
 from typing import Generator
 sys.path.append("./model/GPT_SoVITS")
@@ -14,9 +14,11 @@ from ..utils.audio import wave_header_chunk, pack_audio
 
 def stream_io(tts_text: Generator[str]):
     logger.debug("start generate tts")
-    for text in tts_text:
-        model_output = tts_handle(TTS_Request(text, "zh", streaming_mode=True).model_dump())
-        for item in model_output:
+    for i1, text in enumerate(tts_text):
+        model_output = tts_handle(TTS_Request(text=text, text_lang="zh", streaming_mode=True).model_dump())
+        for i2, item in enumerate(model_output):
+            if i1 != 0 and i2 == 0:
+                continue
             logger.debug("generate tts...")
             yield item
 

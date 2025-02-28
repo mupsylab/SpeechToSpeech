@@ -17,7 +17,7 @@ async def ws(websocket: fastapi.WebSocket):
     await websocket.accept()
     await WebsocketClient(websocket).run()
 
-from ..model.cosy import stream_io
+from ..model.sovits import stream_io
 @router.get("/api/tts/stream")
 async def tts():
     return fastapi.responses.StreamingResponse(stream_io(generate_msg()), media_type="audio/wav")
