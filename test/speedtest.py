@@ -64,7 +64,7 @@ class SpeedTest(unittest.TestCase):
                 self.logger("首句子响应时间")
 
     def test_sovits(self):
-        from core.model.sovits import stream_io
+        from model.sovits import stream_io
         def generate_text():
             yield "你好"
             yield "接下来我要说一个很长很长的话"
@@ -78,7 +78,7 @@ class SpeedTest(unittest.TestCase):
             self.logger("开始音频响应")
 
     def test_cosyvoice(self):
-        from core.model.cosy import stream_io
+        from model.cosy import stream_io
         def generate_text():
             yield "你好"
             yield "接下来我要说一个很长很长的话"
