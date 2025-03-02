@@ -8,7 +8,7 @@ from typing import Literal
 from logging import getLogger
 logger = getLogger(__name__)
 
-from ..model.sensor import vad_array, asr_array
+from model.sensor import vad_array, asr_array
 from . import cm, generate_msg
 
 router = fastapi.APIRouter()
@@ -17,7 +17,7 @@ async def ws(websocket: fastapi.WebSocket):
     await websocket.accept()
     await WebsocketClient(websocket).run()
 
-from ..model.sovits import stream_io
+from model.sovits import stream_io
 @router.get("/api/tts/stream")
 async def tts():
     return fastapi.responses.StreamingResponse(stream_io(generate_msg()), media_type="audio/wav")

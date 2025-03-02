@@ -7,12 +7,12 @@ logger = getLogger(__name__)
 router = fastapi.APIRouter()
 
 from . import cm, generate_msg
-from ..model.sovits import stream_io
+from model.sovits import stream_io
 @router.get("/api/tts")
 async def tts():
     return fastapi.responses.StreamingResponse(stream_io(generate_msg()), media_type="audio/wav")
 
-from ..model.sensor import asr as sensor
+from model.sensor import asr as sensor
 from ..utils.audio import webm2wav
 @router.post("/api/asr")
 async def asr(files: Annotated[List[bytes], fastapi.File(description="wav or mp3 audios in 16KHz")],
