@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from TTS import TTS
 
+from TTS_Utils import CutUtil, norm_spec, denorm_spec, mel_fn
 from TTS_Enitity import PromptCache, LanguageV1, LanguageV2
 
 class TTS_PromptCache():
@@ -53,11 +54,6 @@ class TTS_PromptCache():
             )
             wav16k, sr = torchaudio.load(ref_wav_path)
 
-            # v3 版本，音频缓存
-            transform = torchaudio.transforms.Resample(sr, 24000)
-            self.prompt_cache.ref_audio = wav16k.mean(0).unsqueeze(0)
-            self.prompt_cache.ref_audio_sr = 24000
-
             if sr != 16000:
                 transform = torchaudio.transforms.Resample(sr, 16000)
                 wav16k = transform(wav16k)
@@ -92,6 +88,30 @@ class TTS_PromptCache():
         self._set_ref_spec(ref_audio_path)
         self._set_ref_audio_path(ref_audio_path)
 
+    def _set_v3_cache(self):
+        refer = self.prompt_cache.refer_spec[0]
+        phoneme_ids0 = torch.LongTensor(self.prompt_cache.phones).to(self.configs.device).unsqueeze(0)
+
+        ref_audio, sr = torchaudio.load(self.prompt_cache.ref_audio_path)
+        ref_audio = ref_audio.float()
+        if (ref_audio.shape[0] == 2):
+            ref_audio = ref_audio.mean(0).unsqueeze(0)
+        if sr!=24000:
+            ref_audio = torchaudio.transforms.Resample(sr, 24000)(ref_audio)
+
+        fea_ref, ge = self.runtime.vits_model.decode_encp(self.prompt_cache.prompt_semantic.unsqueeze(0).unsqueeze(0), phoneme_ids0, refer)
+        mel2 = norm_spec(mel_fn(ref_audio.to(self.configs.device)))
+        T_min = min(mel2.shape[2], fea_ref.shape[2])
+        fea_ref = fea_ref[:, :, :T_min]
+        if (T_min > 468):
+            mel2 = mel2[:, :, -468:]
+            fea_ref = fea_ref[:, :, -468:]
+            T_min = 468
+        chunk_len = 934 - T_min
+        mel2=mel2.to(self.runtime.precision)
+
+        self.prompt_cache.v3_cache = [fea_ref, ge, mel2, chunk_len, T_min]
+
     def set_prompt_cache(self, ref_audio_path, prompt_text: str, prompt_lang: LanguageV1 | LanguageV2):
         if self.prompt_cache.prompt_text != prompt_text:
             self.set_ref_audio(ref_audio_path)
@@ -102,3 +122,7 @@ class TTS_PromptCache():
             self.prompt_cache.phones = phones
             self.prompt_cache.bert_features = bert_features
             self.prompt_cache.norm_text = norm_text
+
+            if self.configs.version == "v3":
+                # v3 缓存
+                self._set_v3_cache()

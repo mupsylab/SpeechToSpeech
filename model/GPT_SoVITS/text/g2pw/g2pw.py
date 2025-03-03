@@ -127,14 +127,14 @@ def get_dict():
 
 def read_dict():
     polyphonic_dict = {}
-    with open(PP_DICT_PATH) as f:
+    with open(PP_DICT_PATH,encoding="utf-8") as f:
         line = f.readline()
         while line:
             key, value_str = line.split(':')
             value = eval(value_str.strip())
             polyphonic_dict[key.strip()] = value
             line = f.readline()
-    with open(PP_FIX_DICT_PATH) as f:
+    with open(PP_FIX_DICT_PATH,encoding="utf-8") as f:
         line = f.readline()
         while line:
             key, value_str = line.split(':')
@@ -144,11 +144,16 @@ def read_dict():
     return polyphonic_dict
 
 
-def correct_pronunciation(word,word_pinyins):
-    if word in pp_dict:
-        word_pinyins = pp_dict[word]
-
-    return word_pinyins
+def correct_pronunciation(word, word_pinyins):
+    new_pinyins = pp_dict.get(word, "")
+    if new_pinyins == "":
+        for idx, w in enumerate(word):
+            w_pinyin = pp_dict.get(w, "")
+            if w_pinyin != "":
+                word_pinyins[idx] = w_pinyin[0]
+        return word_pinyins
+    else:
+        return new_pinyins
 
 
 pp_dict = get_dict()

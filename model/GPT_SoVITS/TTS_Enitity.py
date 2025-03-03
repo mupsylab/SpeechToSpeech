@@ -55,8 +55,6 @@ class TTSRunParam(BaseModel):
 # 缓存
 class PromptCache(BaseModel):
     ref_audio_path: str = None
-    ref_audio: torch.Tensor = None
-    ref_audio_sr: int = None
     prompt_semantic: torch.Tensor = None
     refer_spec: list[torch.Tensor] = []
     prompt_text: str = None
@@ -65,5 +63,8 @@ class PromptCache(BaseModel):
     phones: list = None
     bert_features: torch.Tensor = None
     aux_ref_audio_paths: list[str] = []
+
+    # v3 音频缓存
+    v3_cache: tuple[torch.Tensor, torch.Tensor, torch.Tensor, int, int] = ()
 
     model_config = ConfigDict(arbitrary_types_allowed=True)

@@ -71,11 +71,13 @@ class SpeedTest(unittest.TestCase):
             yield "请你仔细认真听哦"
 
         self.logger("VITS耗时测试", True)
-        for i, resp in enumerate(stream_io(generate_text())):
-            if i == 0:
-                # 首位不是tts的输出，而是文件头
-                continue
-            self.logger("开始音频响应")
+        with open("model_pretrained/vits.wav", "wb") as f:
+            for i, resp in enumerate(stream_io(generate_text())):
+                f.write(resp)
+                if i == 0:
+                    # 首位不是tts的输出，而是文件头
+                    continue
+                self.logger("开始音频响应")
 
     def test_cosyvoice(self):
         from model.cosy import stream_io
@@ -85,11 +87,13 @@ class SpeedTest(unittest.TestCase):
             yield "请你仔细认真听哦"
 
         self.logger("CosyVoice耗时测试", True)
-        for i, resp in enumerate(stream_io(generate_text())):
-            if i == 0:
-                # 首位不是tts的输出，而是文件头
-                continue
-            self.logger("开始音频响应")
+        with open("model_pretrained/cosy.wav", "wb") as f:
+            for i, resp in enumerate(stream_io(generate_text())):
+                f.write(resp)
+                if i == 0:
+                    # 首位不是tts的输出，而是文件头
+                    continue
+                self.logger("开始音频响应")
 
 class CustomRunner(unittest.TextTestRunner):
     def run(self, test: unittest.TestSuite | unittest.TestCase):

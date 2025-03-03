@@ -7,7 +7,7 @@ sys.path.append("./model/GPT_SoVITS")
 from logging import getLogger
 logger = getLogger(__name__)
 
-from model.GPT_SoVITS.TTS_infer_pack.TTS import TTS, TTS_Config
+from model.GPT_SoVITS.TTS import TTS, TTSRunParam, TTS_Config
 from model.GPT_SoVITS.TTS_infer_pack.text_segmentation_method import get_method_names as get_cut_method_names
 
 from core.utils.audio import wave_header_chunk, pack_audio
@@ -15,7 +15,7 @@ from core.utils.audio import wave_header_chunk, pack_audio
 def stream_io(tts_text: Generator[str]):
     logger.debug("start generate tts")
     for i1, text in enumerate(tts_text):
-        model_output = tts_handle(TTS_Request(text=text, text_lang="zh", streaming_mode=True).model_dump())
+        model_output = tts_handle(TTSRunParam(text=text, text_lang="zh", streaming_mode=True))
         for i2, item in enumerate(model_output):
             if i1 != 0 and i2 == 0:
                 continue
@@ -30,37 +30,14 @@ tts_pipeline.set_prompt_cache(
     "zh"
 )
 
-def check_params(req:dict):
-    text:str = req.get("text", "")
-    text_lang:str = req.get("text_lang", "")
-    streaming_mode:bool = req.get("streaming_mode", False)
-    media_type:str = req.get("media_type", "wav")
-    text_split_method:str = req.get("text_split_method", "cut5")
-
-    if text in [None, ""]:
-        raise ValueError("text is required")
-    if (text_lang in [None, ""]) :
-        raise ValueError("text_lang is required")
-    elif text_lang.lower() not in tts_config.languages:
-        raise ValueError(f"text_lang: {text_lang} is not supported in version {tts_config.version}")
-    if media_type not in ["wav", "raw", "ogg", "aac"]:
-        raise ValueError(f"media_type: {media_type} is not supported")
-    elif media_type == "ogg" and  not streaming_mode:
-        raise ValueError("ogg format is not supported in non-streaming mode")
-    if text_split_method not in get_cut_method_names():
-        raise ValueError(f"text_split_method:{text_split_method} is not supported")
-    return None
-
-def tts_handle(req:dict):
-    streaming_mode = req.get("streaming_mode", False)
-    return_fragment = req.get("return_fragment", False)
-    media_type = req.get("media_type", "wav")
-
-    check_params(req)
+def tts_handle(req: TTSRunParam):
+    streaming_mode = req.streaming_mode
+    return_fragment = req.return_fragment
+    media_type = req.media_type
 
     if streaming_mode or return_fragment:
-        req["return_fragment"] = True
-    
+        req.return_fragment = True
+
     try:
         tts_generator=tts_pipeline.run(req)
         
@@ -73,34 +50,10 @@ def tts_handle(req:dict):
                     yield pack_audio(BytesIO(), chunk, sr, media_type).getvalue()
             # _media_type = f"audio/{media_type}" if not (streaming_mode and media_type in ["wav", "raw"]) else f"audio/x-{media_type}"
             return streaming_generator(tts_generator, media_type)
-    
+
         else:
             sr, audio_data = next(tts_generator)
             audio_data = pack_audio(BytesIO(), audio_data, sr, media_type).getvalue()
             return audio_data
     except Exception as e:
         raise RuntimeError("tts failed")
-
-from pydantic import BaseModel
-class TTS_Request(BaseModel):
-    text: str = None                           # str.(required) text to be synthesized
-    text_lang: str = None                      # str.(required) language of the text to be synthesized
-    ref_audio_path: str = None                 # str.(optional) reference audio path
-    aux_ref_audio_paths: list = None           # list.(optional) auxiliary reference audio paths for multi-speaker synthesis
-    prompt_lang: str = None                    # str.(optional) prompt text for the reference audio
-    prompt_text: str = ""                      # str.(optional) language of the prompt text for the reference audio
-    top_k:int = 5                              # int. top k sampling
-    top_p:float = 1                            # float. top p sampling
-    temperature:float = 1                      # float. temperature for sampling
-    text_split_method:str = "cut5"             # str. text split method, see text_segmentation_method.py for details.
-    batch_size:int = 1                         # int. batch size for inference
-    batch_threshold:float = 0.75               # float. threshold for batch splitting.
-    split_bucket:bool = True                   # bool. whether to split the batch into multiple buckets.
-    speed_factor:float = 1.0                   # float. control the speed of the synthesized audio.
-    fragment_interval:float = 0.3              # float. to control the interval of the audio fragment.
-    seed:int = -1                              # int. random seed for reproducibility.
-    media_type:str = "wav"                     # str. media type of the output audio, support "wav", "raw", "ogg", "aac".
-    streaming_mode:bool = False                # bool. whether to return a streaming response.
-    parallel_infer:bool = True                 # bool.(optional) whether to use parallel inference.
-    repetition_penalty:float = 1.35            # float.(optional) repetition penalty for T2S model.          
-
