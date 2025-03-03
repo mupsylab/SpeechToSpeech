@@ -90,7 +90,7 @@ class TextPreprocessor:
 
         _texts = text.split("\n")
         _texts = self.filter_text(_texts)
-        # _texts = merge_short_text_in_array(_texts, 5)
+        _texts = merge_short_text_in_array(_texts, 5)
         texts = []
 
         
