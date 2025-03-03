@@ -28,6 +28,16 @@ onnxruntime-gpu==1.19.2; sys_platform != 'darwin'
 opencc==1.1.9; sys_platform != 'linux'
 opencc==1.1.1; sys_platform == 'linux'
 
+x_transformers
+fast_langdetect
+wordsegment
+g2p_en
+nltk
+ToJyutping
+# pyopenjtalk>=0.3.4
+g2pk2
+ko_pron
+
 ## CosyVoice
 conformer==0.3.2
 # deepspeed==0.14.2; sys_platform == 'linux'
