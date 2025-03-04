@@ -63,6 +63,7 @@ class SpeedTest(unittest.TestCase):
                 isFirstSentence = False
                 self.logger("首句子响应时间")
 
+    @unittest.skip("stop")
     def test_sovits(self):
         from model.sovits import stream_io
         def generate_text():

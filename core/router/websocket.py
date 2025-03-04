@@ -17,7 +17,7 @@ async def ws(websocket: fastapi.WebSocket):
     await websocket.accept()
     await WebsocketClient(websocket).run()
 
-from model.sovits import stream_io
+from model.cosy import stream_io
 @router.get("/api/tts/stream")
 async def tts():
     return fastapi.responses.StreamingResponse(stream_io(generate_msg()), media_type="audio/wav")
@@ -85,8 +85,7 @@ class WebsocketClient:
         if len(items) > 1:
             # 超过一段的语音内容，识别前几段
             for item in items[:-1]:
-                if self.asr(item):
-                    await self.ws.send_text("tts:stop")
+                self.asr(item)
         if audio_len - items[-1][1] > self.rest_time:
             # 超过指定时长没有新的语音输入，意味着结束讲话
             if self.asr(items[-1]):
@@ -105,6 +104,8 @@ class WebsocketClient:
         elif wm.action == "record":
             if not self._load_audio_buffer(base64.b64decode(wm.param["audio"])):
                 await self.ws.send_text("asr:toolow")
+            else:
+                await self.ws.send_text("tts:stop")
             await self.valid()
 
     async def _worker(self):

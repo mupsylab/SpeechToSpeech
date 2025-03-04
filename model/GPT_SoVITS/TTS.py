@@ -255,5 +255,5 @@ class TTS(TTS_PromptCache):
 
             max_audio = torch.abs(audio).max()#简单防止16bit爆音
             if max_audio > 1: audio /= max_audio
-            _audio = torch.cat([audio, zero_wav], 0).cpu().detach().numpy()
-            yield self.configs.sampling_rate, (_audio * (2 ** 15)).astype(np.int16)
+            _audio = torch.cat([audio, zero_wav], 0).cpu()
+            yield self.configs.sampling_rate if self.configs.version != "v3" else 24000, (_audio.detach().numpy() * (2 ** 15)).astype(np.int16)

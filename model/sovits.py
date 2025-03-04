@@ -43,10 +43,10 @@ def tts_handle(req: TTSRunParam):
         
         if streaming_mode:
             def streaming_generator(tts_generator:Generator, media_type:str):
-                if media_type == "wav":
-                    yield wave_header_chunk()
-                    media_type = "raw"
                 for sr, chunk in tts_generator:
+                    if media_type == "wav":
+                        yield wave_header_chunk(sample_rate = sr)
+                        media_type = "raw"
                     yield pack_audio(BytesIO(), chunk, sr, media_type).getvalue()
             # _media_type = f"audio/{media_type}" if not (streaming_mode and media_type in ["wav", "raw"]) else f"audio/x-{media_type}"
             return streaming_generator(tts_generator, media_type)
