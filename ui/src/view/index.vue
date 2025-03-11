@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import { useUserInfo } from "../store/UserInfo";
 
 const router = useRouter();
 </script>
 
 <template>
     <el-card class="login-box">
-        <el-button class="form-button" @click="router.push('/manual')">manual</el-button>
         <el-button class="form-button" @click="router.push('/auto')">auto</el-button>
+        <el-button class="form-button" @click="useUserInfo().login()">login</el-button>
     </el-card>
 </template>
 

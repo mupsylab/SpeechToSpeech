@@ -1,6 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 import index from '../view/index.vue';
+import { useUserInfo } from '../store/UserInfo';
+import { ElMessage } from 'element-plus';
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -8,17 +10,35 @@ const router = createRouter({
     {
       path: "/",
       name: "index",
-      component: index
-    }, {
-      path: "/manual",
-      name: "sts-manual",
-      component: () => import("../view/sts/manual.vue")
+      component: index,
+      meta: {
+        requireAuth: false
+      }
     }, {
       path: "/auto",
       name: "sts-auto",
-      component: () => import("../view/sts/auto.vue")
+      component: () => import("../view/app/auto.vue"),
+      meta: {
+        requireAuth: true
+      }
     }
   ]
+});
+
+router.beforeEach((to, _, next) => {
+  const userInfo = useUserInfo();
+
+  if (to.meta.requireAuth) {
+    userInfo.isLogin().then(r => {
+      if (r) { next();}
+      else {
+        ElMessage.warning("请先登录");
+        next("/");
+      }
+    })
+  } else {
+    next();
+  }
 });
 
 export default router;

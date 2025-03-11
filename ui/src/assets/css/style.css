@@ -1,4 +1,30 @@
 :root {
+    --dashboard-background: var(--idegrey-1);
+    --dashboard-layout: var(--idegrey-4);
+
+    --dashboard-dividing: var(--idegrey-2);
+    --dashboard-dividing-component: var(--opacity-idegrey-25);
+    
+    --menu-activate: var(--idegrey-5);
+
+    --font-color: var(--idegrey-9);
+    --font-high-light: var(--idegrey-10);
+    --font-desc: var(--idegrey-7);
+    --font-invalid: var(--idegrey-6);
+    --bg-color-list-hover: var(--opacity-idegrey-25);
+    --bg-color-input: var(--idegrey-1);
+
+    --fc-error-color: var(--red-6);
+    --fc-error-bg: var(--opacity-red-25);
+    --fc-warn-color: var(--gold-6);
+    --fc-warn-bg: var(--opacity-gold-25);
+    --fc-success-color: var(--green-7);
+    --fc-success-bg: var(--opacity-green-25);
+    --fc-suggest-color: var(--ideblue-7);
+    --fc-suggest-bg: var(--opacity-ideblue-25);
+}
+
+:root {
     font-size: 16px;
     font-weight: 400;
     line-height: 24px;

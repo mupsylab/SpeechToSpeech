@@ -1,6 +1,27 @@
 :root {
-    /* 中性色板 */
+    /* 用于反白场景 */
+    --opacity-white-05: #ffffff0d;
+    --opacity-white-10: #ffffff1a;
+    --opacity-white-15: #ffffff26;
+    --opacity-white-20: #ffffff33;
+    --opacity-white-25: #ffffff40;
+    --opacity-white-30: #ffffff4d;
+    --opacity-white-35: #ffffff59;
+    --opacity-white-40: #ffffff66;
+    --opacity-white-45: #ffffff73;
+    --opacity-white-50: #ffffff80;
+    --opacity-white-55: #ffffff8c;
+    --opacity-white-60: #ffffff99;
+    --opacity-white-65: #ffffffa6;    
+    --opacity-white-70: #ffffffb3;    
+    --opacity-white-75: #ffffffbf;    
+    --opacity-white-80: #ffffffcc;    
+    --opacity-white-85: #ffffffd9;    
+    --opacity-white-90: #ffffffe6;    
+    --opacity-white-95: #fffffff2;    
+}
 
+:root {
     /* 深色主题 */
     --dark-idegrey-1: #202224;
     --dark-idegrey-2: #252729;
@@ -14,30 +35,7 @@
     --dark-idegrey-10: #ffffff;
     --dark-opacity-idegrey-50: #5f656b80;
     --dark-opacity-idegrey-25: #5f656b40;
-    --dark-opacity-black-25: #00000040;
 
-    /* 浅色主题 */
-    --light-idegrey-1: #ffffff;
-    --light-idegrey-2: #f7f7f7;
-    --light-idegrey-3: #f2f2f2;
-    --light-idegrey-4: #ececec;
-    --light-idegrey-5: #e0e0e0;
-    --light-idegrey-6: #cccccc;
-    --light-idegrey-7: #999999;
-    --light-idegrey-8: #666666;
-    --light-idegrey-9: #4d4d4d;
-    --light-idegrey-10: #262626;
-    --light-opacity-idegrey-50: #cccccc80;
-    --light-opacity-idegrey-25: #cccccc40;
-
-    /* 用于反白场景 */
-    --opacity-white-1: #ffffff1a;
-    --opacity-white-25: #ffffff40;
-    --opacity-white-50: #ffffff80;
-    --opacity-white-65: #ffffffa6;
-}
-
-:root {
     /* 主色色板 */
     --dark-blue-1: #14202c;
     --dark-blue-2: #1b2f44;
@@ -49,23 +47,8 @@
     --dark-blue-8: #67abeb;
     --dark-blue-9: #88bff3;
     --dark-blue-10: #afd6fa;
-
-    --light-blue-1: #e6f3ff;
-    --light-blue-2: #cce7ff;
-    --light-blue-3: #9dcefc;
-    --light-blue-4: #6eb6fa;
-    --light-blue-5: #3d9cf5;
-    --light-blue-6: #1785eb;
-    --light-blue-7: #0d75d6;
-    --light-blue-8: #0760b3;
-    --light-blue-9: #064d8f;
-    --light-blue-10: #023666;
-
     --dark-opacity-blue-25: #167cdb40;
-    --light-opacity-blue-25: #67abeb40;
-}
 
-:root {
     /* 功能色色板 */
     --dark-opacity-red-25: #d21f2840;
     --dark-opacity-volcano-25: #d7491a40;
@@ -131,120 +114,257 @@
 }
 
 :root {
-    /* 功能色色板 */
-    --light-opacity-red-25: #ff787540;
-    --light-opacity-volcano-25: #ff9c6e40;
-    --light-opacity-orange-25: #ffc06940;
-    --light-opacity-gold-25: #ffd66640;
-    --light-opacity-green-25: #95de6440;
-    --light-opacity-cyan-25: #5cdbd340;
-    --light-opacity-ideblue-25: #6eb6fa40;
-    --light-opacity-geekblue-25: #85a5ff40;
-    --light-opacity-purple-25: #b37feb40;
-    --light-opacity-idegrey-25: #cccccc40;
-
-    /* 错误/失败/停止 */
-    --light-red-1: #fff1f0;
-    --light-red-6: #ff7875;
-    --light-red-7: #ff4d4f;
-    --light-red-8: #f5222d;
-
-    --light-volcano-1: #fff2e8;
-    --light-volcano-6: #ff9c6e;
-    --light-volcano-7: #ff7a45;
-    --light-volcano-8: #fa541c;
-
-    --light-orange-1: #fff7e6;
-    --light-orange-6: #ffc069;
-    --light-orange-7: #ffa940;
-    --light-orange-8: #fa8c16;
-    /* 警告/提醒/强调 */
-    --light-gold-1: #fffbe6;
-    --light-gold-6: #ffd666;
-    --light-gold-7: #ffc53d;
-    --light-gold-8: #faad14;
-    /* 成功/完成/开始 */
-    --light-green-1: #f6ffed;
-    --light-green-6: #95de64;
-    --light-green-7: #73d13d;
-    --light-green-8: #52c41a;
-
-    --light-cyan-1: #e6fffb;
-    --light-cyan-6: #5cdbd3;
-    --light-cyan-7: #36cfc9;
-    --light-cyan-8: #13c2c2;
-    /* 提示/说明/强调 */
-    --light-ideblue-1: #e6f3ff;
-    --light-ideblue-6: #6eb6fa;
-    --light-ideblue-7: #3d9cf5;
-    --light-ideblue-8: #1785eb;
-
-    --light-geekblue-1: #f0f5ff;
-    --light-geekblue-6: #85a5ff;
-    --light-geekblue-7: #597ef7;
-    --light-geekblue-8: #2f54eb;
-
-    --light-purple-1: #f9f0ff;
-    --light-purple-6: #b37feb;
-    --light-purple-7: #9254de;
-    --light-purple-8: #722ed1;
-    /* 弱说明/弱提示 */
+    /* 浅色主题 */
+    --light-idegrey-1: #ffffff;
     --light-idegrey-2: #f7f7f7;
+    --light-idegrey-3: #f2f2f2;
+    --light-idegrey-4: #ececec;
+    --light-idegrey-5: #e0e0e0;
     --light-idegrey-6: #cccccc;
     --light-idegrey-7: #999999;
     --light-idegrey-8: #666666;
-}
+    --light-idegrey-9: #4d4d4d;
+    --light-idegrey-10: #262626;
+    --light-opacity-idegrey-50: #cccccc80;
+    --light-opacity-idegrey-25: #cccccc40;
 
-.light {
-    --dashboard-background: var(--light-idegrey-1);
-    --dashboard-layout: var(--light-idegrey-4);
+    /* 主色色板 */
+    --light-blue-1: #e6f3ff;
+    --light-blue-2: #cce7ff;
+    --light-blue-3: #9dcefc;
+    --light-blue-4: #6eb6fa;
+    --light-blue-5: #3d9cf5;
+    --light-blue-6: #1785eb;
+    --light-blue-7: #0d75d6;
+    --light-blue-8: #0760b3;
+    --light-blue-9: #064d8f;
+    --light-blue-10: #023666;
+    --light-opacity-blue-25: #67abeb40;
 
-    --dashboard-dividing: var(--light-idegrey-2);
-    --dashboard-dividing-component: var(--light-opacity-idegrey-25);
+   /* 功能色色板 */
+   --light-opacity-red-25: #ff787540;
+   --light-opacity-volcano-25: #ff9c6e40;
+   --light-opacity-orange-25: #ffc06940;
+   --light-opacity-gold-25: #ffd66640;
+   --light-opacity-green-25: #95de6440;
+   --light-opacity-cyan-25: #5cdbd340;
+   --light-opacity-ideblue-25: #6eb6fa40;
+   --light-opacity-geekblue-25: #85a5ff40;
+   --light-opacity-purple-25: #b37feb40;
+   --light-opacity-idegrey-25: #cccccc40;
 
-    --font-color: var(--light-idegrey-9);
-    --font-high-light: var(--light-idegrey-10);
-    --font-desc: var(--light-idegrey-7);
-    --font-invalid: var(--light-idegrey-6);
+   /* 错误/失败/停止 */
+   --light-red-1: #fff1f0;
+   --light-red-6: #ff7875;
+   --light-red-7: #ff4d4f;
+   --light-red-8: #f5222d;
 
-    --menu-activate: var(--light-idegrey-5);
+   --light-volcano-1: #fff2e8;
+   --light-volcano-6: #ff9c6e;
+   --light-volcano-7: #ff7a45;
+   --light-volcano-8: #fa541c;
 
-    --bg-color-list-hover: var(--light-opacity-idegrey-25);
-    --bg-color-input: var(--light-idegrey-1);
+   --light-orange-1: #fff7e6;
+   --light-orange-6: #ffc069;
+   --light-orange-7: #ffa940;
+   --light-orange-8: #fa8c16;
+   /* 警告/提醒/强调 */
+   --light-gold-1: #fffbe6;
+   --light-gold-6: #ffd666;
+   --light-gold-7: #ffc53d;
+   --light-gold-8: #faad14;
+   /* 成功/完成/开始 */
+   --light-green-1: #f6ffed;
+   --light-green-6: #95de64;
+   --light-green-7: #73d13d;
+   --light-green-8: #52c41a;
 
-    --fc-error-color: var(--light-red-6);
-    --fc-error-bg: var(--light-opacity-red-25);
-    --fc-warn-color: var(--light-gold-6);
-    --fc-warn-bg: var(--light-opacity-gold-25);
-    --fc-success-color: var(--light-green-7);
-    --fc-success-bg: var(--light-opacity-green-25);
-    --fc-suggest-color: var(--light-ideblue-7);
-    --fc-suggest-bg: var(--light-opacity-ideblue-25);
+   --light-cyan-1: #e6fffb;
+   --light-cyan-6: #5cdbd3;
+   --light-cyan-7: #36cfc9;
+   --light-cyan-8: #13c2c2;
+   /* 提示/说明/强调 */
+   --light-ideblue-1: #e6f3ff;
+   --light-ideblue-6: #6eb6fa;
+   --light-ideblue-7: #3d9cf5;
+   --light-ideblue-8: #1785eb;
+
+   --light-geekblue-1: #f0f5ff;
+   --light-geekblue-6: #85a5ff;
+   --light-geekblue-7: #597ef7;
+   --light-geekblue-8: #2f54eb;
+
+   --light-purple-1: #f9f0ff;
+   --light-purple-6: #b37feb;
+   --light-purple-7: #9254de;
+   --light-purple-8: #722ed1;
+   /* 弱说明/弱提示 */
+   --light-idegrey-2: #f7f7f7;
+   --light-idegrey-6: #cccccc;
+   --light-idegrey-7: #999999;
+   --light-idegrey-8: #666666;
 }
 
 .dark {
-    --dashboard-background: var(--dark-idegrey-1);
-    --dashboard-layout: var(--dark-idegrey-4);
+    --idegrey-1:  var(--dark-idegrey-1);
+    --idegrey-2:  var(--dark-idegrey-2);
+    --idegrey-3:  var(--dark-idegrey-3);
+    --idegrey-4:  var(--dark-idegrey-4);
+    --idegrey-5:  var(--dark-idegrey-5);
+    --idegrey-6:  var(--dark-idegrey-6);
+    --idegrey-7:  var(--dark-idegrey-7);
+    --idegrey-8:  var(--dark-idegrey-8);
+    --idegrey-9:  var(--dark-idegrey-9);
+    --idegrey-10: var(--dark-idegrey-10);
+    --opacity-idegrey-25: var(--dark-opacity-idegrey-25);
+    --opacity-idegrey-50: var(--dark-opacity-idegrey-50);
 
-    --dashboard-dividing: var(--dark-idegrey-2);
-    --dashboard-dividing-component: var(--dark-opacity-idegrey-25);
+    --blue-1:  var(--dark-blue-1);
+    --blue-2:  var(--dark-blue-2);
+    --blue-3:  var(--dark-blue-3);
+    --blue-4:  var(--dark-blue-4);
+    --blue-5:  var(--dark-blue-5);
+    --blue-6:  var(--dark-blue-6);
+    --blue-7:  var(--dark-blue-7);
+    --blue-8:  var(--dark-blue-8);
+    --blue-9:  var(--dark-blue-9);
+    --blue-10: var(--dark-blue-10);
+    --opacity-blue-25: var(--dark-opacity-blue-25);
 
-    --font-color: var(--dark-idegrey-9);
-    --font-high-light: var(--dark-idegrey-10);
-    --font-desc: var(--dark-idegrey-7);
-    --font-invalid: var(--dark-idegrey-6);
+    /* 错误/失败/停止 */
+    --red-1:  var(--dark-red-1);
+    --red-6:  var(--dark-red-6);
+    --red-7:  var(--dark-red-7);
+    --red-8:  var(--dark-red-8);
+    --opacity-red-25: var(--dark-opacity-red-25);
 
-    --menu-activate: var(--dark-idegrey-5);
+    --volcano-1:  var(--dark-volcano-1);
+    --volcano-6:  var(--dark-volcano-6);
+    --volcano-7:  var(--dark-volcano-7);
+    --volcano-8:  var(--dark-volcano-8);
+    --opacity-volcano-25: var(--dark-opacity-volcano-25);
 
-    --bg-color-list-hover: var(--dark-opacity-idegrey-25);
-    --bg-color-input: var(--dark-idegrey-1);
+    --orange-1:  var(--dark-orange-1);
+    --orange-6:  var(--dark-orange-6);
+    --orange-7:  var(--dark-orange-7);
+    --orange-8:  var(--dark-orange-8);
+    --opacity-orange-25: var(--dark-opacity-orange-25);
+    /* 警告/提醒/强调 */
+    --gold-1:  var(--dark-gold-1);
+    --gold-6:  var(--dark-gold-6);
+    --gold-7:  var(--dark-gold-7);
+    --gold-8:  var(--dark-gold-8);
+    --opacity-gold-25: var(--dark-opacity-gold-25);
+    /* 成功/完成/开始 */
+    --green-1:  var(--dark-green-1);
+    --green-6:  var(--dark-green-6);
+    --green-7:  var(--dark-green-7);
+    --green-8:  var(--dark-green-8);
+    --opacity-green-25: var(--dark-opacity-green-25);
 
-    --fc-error-color: var(--dark-red-6);
-    --fc-error-bg: var(--dark-opacity-red-25);
-    --fc-warn-color: var(--dark-gold-6);
-    --fc-warn-bg: var(--dark-opacity-gold-25);
-    --fc-success-color: var(--dark-green-7);
-    --fc-success-bg: var(--dark-opacity-green-25);
-    --fc-suggest-color: var(--dark-ideblue-7);
-    --fc-suggest-bg: var(--dark-opacity-ideblue-25);
+    --cyan-1:  var(--dark-cyan-1);
+    --cyan-6:  var(--dark-cyan-6);
+    --cyan-7:  var(--dark-cyan-7);
+    --cyan-8:  var(--dark-cyan-8);
+    --opacity-cyan-25: var(--dark-opacity-cyan-25);
+    /* 提示/说明/强调 */
+    --ideblue-1:  var(--dark-ideblue-1);
+    --ideblue-6:  var(--dark-ideblue-6);
+    --ideblue-7:  var(--dark-ideblue-7);
+    --ideblue-8:  var(--dark-ideblue-8);
+    --opacity-ideblue-25: var(--dark-opacity-ideblue-25);
+
+    --geekblue-1:  var(--dark-geekblue-1);
+    --geekblue-6:  var(--dark-geekblue-6);
+    --geekblue-7:  var(--dark-geekblue-7);
+    --geekblue-8:  var(--dark-geekblue-8);
+    --opacity-geekblue-25: var(--dark-opacity-geekblue-25);
+
+    --purple-1:  var(--dark-purple-1);
+    --purple-6:  var(--dark-purple-6);
+    --purple-7:  var(--dark-purple-7);
+    --purple-8:  var(--dark-purple-8);
+    --opacity-purple-25: var(--dark-opacity-purple-25);
+}
+
+.light {
+    --idegrey-1:  var(--light-idegrey-1);
+    --idegrey-2:  var(--light-idegrey-2);
+    --idegrey-3:  var(--light-idegrey-3);
+    --idegrey-4:  var(--light-idegrey-4);
+    --idegrey-5:  var(--light-idegrey-5);
+    --idegrey-6:  var(--light-idegrey-6);
+    --idegrey-7:  var(--light-idegrey-7);
+    --idegrey-8:  var(--light-idegrey-8);
+    --idegrey-9:  var(--light-idegrey-9);
+    --idegrey-10: var(--light-idegrey-10);
+    --opacity-idegrey-25: var(--light-opacity-idegrey-25);
+    --opacity-idegrey-50: var(--light-opacity-idegrey-50);
+
+    --blue-1:  var(--light-blue-1);
+    --blue-2:  var(--light-blue-2);
+    --blue-3:  var(--light-blue-3);
+    --blue-4:  var(--light-blue-4);
+    --blue-5:  var(--light-blue-5);
+    --blue-6:  var(--light-blue-6);
+    --blue-7:  var(--light-blue-7);
+    --blue-8:  var(--light-blue-8);
+    --blue-9:  var(--light-blue-9);
+    --blue-10: var(--light-blue-10);
+    --opacity-blue-25: var(--light-opacity-blue-25);
+
+    /* 错误/失败/停止 */
+    --red-1:  var(--light-red-1);
+    --red-6:  var(--light-red-6);
+    --red-7:  var(--light-red-7);
+    --red-8:  var(--light-red-8);
+    --opacity-red-25: var(--light-opacity-red-25);
+
+    --volcano-1:  var(--light-volcano-1);
+    --volcano-6:  var(--light-volcano-6);
+    --volcano-7:  var(--light-volcano-7);
+    --volcano-8:  var(--light-volcano-8);
+    --opacity-volcano-25: var(--light-opacity-volcano-25);
+
+    --orange-1:  var(--light-orange-1);
+    --orange-6:  var(--light-orange-6);
+    --orange-7:  var(--light-orange-7);
+    --orange-8:  var(--light-orange-8);
+    --opacity-orange-25: var(--light-opacity-orange-25);
+
+    --gold-1:  var(--light-gold-1);
+    --gold-6:  var(--light-gold-6);
+    --gold-7:  var(--light-gold-7);
+    --gold-8:  var(--light-gold-8);
+    --opacity-gold-25: var(--light-opacity-gold-25);
+
+    --green-1:  var(--light-green-1);
+    --green-6:  var(--light-green-6);
+    --green-7:  var(--light-green-7);
+    --green-8:  var(--light-green-8);
+    --opacity-green-25: var(--light-opacity-green-25);
+
+    --cyan-1:  var(--light-cyan-1);
+    --cyan-6:  var(--light-cyan-6);
+    --cyan-7:  var(--light-cyan-7);
+    --cyan-8:  var(--light-cyan-8);
+    --opacity-cyan-25: var(--light-opacity-cyan-25);
+
+    --ideblue-1:  var(--light-ideblue-1);
+    --ideblue-6:  var(--light-ideblue-6);
+    --ideblue-7:  var(--light-ideblue-7);
+    --ideblue-8:  var(--light-ideblue-8);
+    --opacity-ideblue-25: var(--light-opacity-ideblue-25);
+
+    --geekblue-1:  var(--light-geekblue-1);
+    --geekblue-6:  var(--light-geekblue-6);
+    --geekblue-7:  var(--light-geekblue-7);
+    --geekblue-8:  var(--light-geekblue-8);
+    --opacity-geekblue-25: var(--light-opacity-geekblue-25);
+
+    --purple-1:  var(--light-purple-1);
+    --purple-6:  var(--light-purple-6);
+    --purple-7:  var(--light-purple-7);
+    --purple-8:  var(--light-purple-8);
+    --opacity-purple-25: var(--light-opacity-purple-25);
 }

@@ -9,6 +9,10 @@ uvicorn==0.30.6
 fastapi==0.110.1
 python-multipart
 modelscope
+simplejson
+sortedcontainers
+addict
+
 python-dotenv
 websockets
 ## SensorVoice
