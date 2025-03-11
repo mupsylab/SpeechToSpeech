@@ -1,13 +1,15 @@
+import os
 import numpy as np
-from modelscope.utils.audio.audio_utils import audio_norm
 from model.frcrn import FRCRN
-model = FRCRN("model_pretrained/speech_frcrn_ans_cirm_16k", "cuda")
+model = FRCRN(
+    os.getenv("FRCRN_MODEL", "model_pretrained/speech_frcrn_ans_cirm_16k"),
+    os.getenv("FRCRN_DEVICE", "cuda"),
+)
 
 def denoise(arr: np.ndarray, sr: int):
     """
     arr: 一维数组
     sr: 采样率
     """
-    noise, voice = model.forward(arr, sr)
-    return noise, voice
+    return model.forward(arr, sr)
 

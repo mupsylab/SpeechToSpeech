@@ -8,7 +8,6 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 from model.GPT_SoVITS.TTS import TTS, TTSRunParam, TTS_Config
-from model.GPT_SoVITS.TTS_infer_pack.text_segmentation_method import get_method_names as get_cut_method_names
 
 from core.utils.audio import wave_header_chunk, pack_audio
 
