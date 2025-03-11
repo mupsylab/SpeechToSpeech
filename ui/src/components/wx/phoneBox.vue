@@ -65,4 +65,10 @@ const emits = defineEmits(['togglePhone']);
     transform: rotate(135deg);
     background-color: var(--red-6) !important;
 }
+
+@media screen and (max-width: 400px) {
+    .avator {
+        padding: 45% 0 20% 0;
+    }
+}
 </style>

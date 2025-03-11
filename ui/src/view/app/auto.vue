@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Mute, Microphone } from '@element-plus/icons-vue';
+import { Mute, Microphone, ChatDotSquare } from '@element-plus/icons-vue';
 import { ElIcon, ElMessage } from 'element-plus';
 import ChatBox from '../../components/wx/chatBox.vue';
 import PhoneBox from '../../components/wx/phoneBox.vue';
@@ -49,6 +49,8 @@ function startPhone() {
                 sampleRate: ar?.sampleRate
             }
         }));
+        ap?.load(`/api/tts`);
+        ap?.start();
     });
     ws.addEventListener("message", (e) => {
         if (e.data == "tts:start") {
@@ -91,6 +93,7 @@ fetch("/api/history")
 
 const phone = ref(false);
 const muted = ref(true);
+const chat = ref(false);
 const togglePhone = () => {
     phone.value = !phone.value;
     if (phone.value) {
@@ -107,6 +110,7 @@ const toggleMute = () => {
         ar?.start();
     }
 };
+const toggleChat = () => { chat.value = !chat.value; };
 </script>
 
 <template>
@@ -116,8 +120,16 @@ const toggleMute = () => {
                 <Microphone v-if="!muted" />
                 <Mute v-else />
             </ElIcon>
+            <ElIcon class="phone" @click="toggleChat" size="36">
+                <ChatDotSquare />
+            </ElIcon>
         </PhoneBox>
-        <ChatBox :messages="messages"></ChatBox>
+        <div class="chat-box-layout" @click="toggleChat" :class="{
+            show: chat
+        }"></div>
+        <ChatBox :class="{
+            show: chat
+        }" :messages="messages"></ChatBox>
     </div>
 </template>
 
@@ -144,10 +156,63 @@ const toggleMute = () => {
     cursor: pointer;
 }
 .phone-box .el-icon.mute { background-color: var(--fc-warn-bg); }
+
+.chat-box-layout {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
 .chat-box {
     display: inline-block;
     width: 500px;
     height: 100%;
     overflow-y: auto;
+}
+
+.phone {
+    display: none;
+}
+@media screen and (max-width: 400px) {
+    html {
+        overflow: hidden;
+    }
+
+    .box {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+    .phone-box {
+        width: 100%;
+        height: 100%;
+    }
+    .chat-box {
+        display: block;
+        width: 100%;
+        height: 0%;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        padding: 0;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .chat-box-layout.show {
+        display: block;
+    }
+    .chat-box.show {
+        display: block;
+        height: 75%;
+        top: 25%;
+        padding: 20px;
+    }
+
+    .phone {
+        display: inline-flex;
+    }
 }
 </style>

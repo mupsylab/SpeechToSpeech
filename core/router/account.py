@@ -9,7 +9,7 @@ router = fastapi.APIRouter(prefix="/api/account")
 @router.get("/login")
 def login():
     session_id = str(generate_snowflake_id())
-    session_manager.set(session_id)
+    session_manager.set(session_id, dict())
     logger.debug("login session: %s" % session_id)
 
     response = fastapi.responses.JSONResponse({
