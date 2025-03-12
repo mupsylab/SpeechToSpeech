@@ -143,7 +143,7 @@ class WebsocketClient:
             return
         elif wm.action == "record":
             if not self._load_audio_buffer(base64.b64decode(wm.param["audio"])):
-                await self.ws.send_text("asr:toolow")
+                pass
             else:
                 await self.ws.send_text("tts:stop")
             await self.valid()

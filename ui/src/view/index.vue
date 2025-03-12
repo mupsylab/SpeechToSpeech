@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { useUserInfo } from "../store/UserInfo";
+import { storeToRefs } from "pinia";
 
 const router = useRouter();
+const userInfo = useUserInfo();
+const {is_login} = storeToRefs(userInfo);
 </script>
 
 <template>
     <el-card class="login-box">
-        <el-button class="form-button" @click="router.push('/auto')">auto</el-button>
-        <el-button class="form-button" @click="useUserInfo().login()">login</el-button>
+        <el-button class="form-button" @click="router.push('/auto')" v-if="is_login">语音访谈</el-button>
+        <el-button class="form-button" @click="userInfo.login()" v-if="!is_login">登录</el-button>
+        <el-button class="form-button" @click="userInfo.logout()" v-else>登出</el-button>
     </el-card>
 </template>
 
