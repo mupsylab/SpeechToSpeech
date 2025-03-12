@@ -37,6 +37,10 @@ async def tts(request: fastapi.Request):
 async def history(request: fastapi.Request):
     session_id = request.cookies.get("session")
     session = session_manager.get(session_id)
+    if "chat" not in session:
+        return fastapi.responses.JSONResponse({
+            "history": []
+        })
     cm: ChatManager = session["chat"]
     return fastapi.responses.JSONResponse({
         "history": [item.model_dump() for item in cm.cache]
