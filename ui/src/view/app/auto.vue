@@ -42,6 +42,10 @@ function startPhone() {
         ElMessage.error("连接失败");
         togglePhone();
     });
+    ws.addEventListener("close", () => {
+        phone.value = false;
+        stopPhone();
+    })
     ws.addEventListener("open", () => {
         ws?.send(JSON.stringify({
             action: "init",
