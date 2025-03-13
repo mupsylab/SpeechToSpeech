@@ -15,7 +15,7 @@ module = __import__(f"core.llm.{os.getenv('LLM', 'chatgpt')}", globals(), locals
 chat: Chat = module.chat
 
 # 导入tts模块
-module = __import__(f"model.{os.getenv('TTS', 'vits')}", globals(), locals(), ["stream_io"])
+module = __import__(f"model.{os.getenv('TTS', 'sovits')}", globals(), locals(), ["stream_io"])
 stream_io: StreamIO = module.stream_io
 
 class SessionManager():
