@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 load_dotenv()
 
-ENABLE = os.getenv("ENABLE", "sts").split(",")
+ENABLE = os.getenv("ENABLE", "account,websocket").split(",")
 app = fastapi.FastAPI()
 from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
