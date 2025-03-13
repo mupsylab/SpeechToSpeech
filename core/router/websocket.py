@@ -9,8 +9,7 @@ logger = getLogger(__name__)
 
 from model.denoise import denoise
 from model.sensor import vad_array, asr_array
-from model.sovits import stream_io
-from . import session_manager, ChatManager, chat
+from . import ChatManager, session_manager, chat, stream_io
 
 router = fastapi.APIRouter()
 @router.websocket("/ws/{session_id}")
@@ -70,7 +69,7 @@ class WebsocketMessage(BaseModel):
 
 class WebsocketClient:
     def __init__(self, ws: fastapi.WebSocket) -> None:
-        self.rest_time = 800 # 讲话时，最长允许的停顿时间, 单位ms
+        self.rest_time = 400 # 讲话时，最长允许的停顿时间, 单位ms
         self.min_audio_frame_len = 25 * 0.001 # 最小音频帧应该保证25毫秒
         
         self.ws = ws
@@ -125,6 +124,7 @@ class WebsocketClient:
             self.audioBuffer = np.array([], dtype=np.float32)
             return False
 
+        await self.ws.send_text("tts:stop")
         if len(items) > 1:
             # 超过一段的语音内容，识别前几段
             for item in items[:-1]:
@@ -146,10 +146,7 @@ class WebsocketClient:
             # 还未初始化
             return
         elif wm.action == "record":
-            if not self._load_audio_buffer(base64.b64decode(wm.param["audio"])):
-                pass
-            else:
-                await self.ws.send_text("tts:stop")
+            self._load_audio_buffer(base64.b64decode(wm.param["audio"]))
             await self.valid()
 
     async def _worker(self):

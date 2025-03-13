@@ -1,14 +1,22 @@
 """
 LLM聊天管理
 """
+from __future__ import annotations
+from typing_extensions import Any, Literal, List, Generator, Callable
+StreamIO = Callable[[Generator[str]], Generator[bytes]]
+
 import os
 from logging import getLogger
 logger = getLogger(__name__)
-from ..llm import ChatManager
-from ..llm import Chat
+from ..llm import Chat, ChatManager
 
+# 导入llm模块
 module = __import__(f"core.llm.{os.getenv('LLM', 'chatgpt')}", globals(), locals(), ["chat"])
 chat: Chat = module.chat
+
+# 导入tts模块
+module = __import__(f"model.{os.getenv('TTS', 'vits')}", globals(), locals(), ["stream_io"])
+stream_io: StreamIO = module.stream_io
 
 class SessionManager():
     def __init__(self) -> None:
@@ -35,3 +43,22 @@ class SessionManager():
             del self.session[key]
         return key
 session_manager = SessionManager()
+
+# import threading
+# import time
+# def timeHandler():
+#     while True:
+#         for key, item in session_manager.session.items():
+#             logger.debug("run session: %s" % key)
+#             if "chat" in item:
+#                 im: InterviewManager = item["chat"]
+#                 im.check_llm_message(chat)
+#                 if im.judge(chat):
+#                     im.next()
+#         time.sleep(30)
+
+# thread = threading.Thread(
+#     target=timeHandler,
+#     daemon=True
+# )
+# thread.start()

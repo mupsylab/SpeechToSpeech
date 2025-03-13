@@ -2,6 +2,7 @@
 基础的聊天管理
 """
 from __future__ import annotations
+import time
 from pydantic import BaseModel
 from typing_extensions import Literal, List, Generator, Callable
 
@@ -63,9 +64,15 @@ to providing in-depth explanations and discussions on a wide range of topics.
 reponse language should be Chinese."""
 
     def __init__(self) -> None:
+        # 聊天记录的修改时间
+        self.last_activate_time = time.time_ns()
+        # 检测操作记录的最后一次聊天
+        self.last_check_time = self.last_activate_time
+
         self.cache: List[ChatMessage] = []
 
     def add_chat(self, message: str, role: str):
+        self.last_activate_time = time.time_ns()
         msg = ChatMessage(role = role, content = message)
         if len(self.cache) and msg.role == self.cache[-1].role:
             # 角色一致, 意味着是补充, 不分段
@@ -89,6 +96,10 @@ reponse language should be Chinese."""
         """检查llm消息是否达到上限
         注意，该方法应该定时调用
         """
+        if self.last_check_time == self.last_activate_time:
+            # 在最后一次检测之前，记录没有更改，无需检测
+            return
+        self.last_check_time = self.last_activate_time
         messages = ""
         for m in self.cache:
             if m.role == "user":
