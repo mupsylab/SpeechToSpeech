@@ -1,9 +1,9 @@
 # python==3.10
 
 # pip install torch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu124
-torch==2.5.1 --index-url https://download.pytorch.org/whl/cu124
-torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu124
-torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu124
+# torch==2.5.1 --index-url https://download.pytorch.org/whl/cu124
+# torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu124
+# torchaudio==2.5.1 --index-url https://download.pytorch.org/whl/cu124
 
 uvicorn==0.30.6
 fastapi==0.110.1
