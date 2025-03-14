@@ -13,3 +13,4 @@ EXPOSE 8000
 ENTRYPOINT ["/app/script/start.sh"]
 
 COPY . /app
+RUN chmod +x /app/script/start.sh
