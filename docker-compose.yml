@@ -1,0 +1,21 @@
+version: '3'
+services:
+  sts:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./env:/app/env
+      - ./model_pretrained:/app/model_pretrained
+    environment:
+      - LLM=chatgpt
+      - TTS=cosy
+      - OPENAI_BASE_URL=value
+      - OPENAI_API_KEY=value
+      - OPENAI_MODEL=value
+      - PROMPT_AUDIO=model_pretrained/SenseVoiceSmall/example/zh.mp3
+      - PROMPT_TEXT=开放时间，早上九点至下午五点
+      - FRCRN_DEVICE=cpu
+      - SENSE_DEVICE=cpu
+
+

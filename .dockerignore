@@ -1,0 +1,15 @@
+.git
+.vscode
+__pycache__
+
+env
+model_pretrained
+tests
+
+ui/*
+!ui/dist
+
+.installed
+docker-compose.yml
+Dockerfile
+*.ipynb

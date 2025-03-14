@@ -1,5 +1,6 @@
 __pycache__
 TEMP
+env
 model_pretrained
 runtime
 
