@@ -16,7 +16,7 @@ session.headers.update({
 })
 session.get("https://nas.hk1.mupsy.net/sharing/oWN3u422f")
 resp = session.get(
-    "https://nas.lan.mupsy.net/fsdownload/oWN3u422f/GPT_SoVITS.zip",
+    "https://nas.hk1.mupsy.net/fsdownload/oWN3u422f/GPT_SoVITS.zip",
     stream=True
 )
 with open("model_pretrained/GPT_SoVITS.zip", "wb") as f:
