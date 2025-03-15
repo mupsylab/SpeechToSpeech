@@ -58,7 +58,9 @@ def generate_msg(session: dict[str, any]):
                 asyncio.run(ws.ws.send_text("stream:llm:%s" % resp.content))
             if resp.type == "sentence":
                 logger.debug("start generate llm sentence: %s" % resp.content)
-                yield resp.content
+                if resp.content.strip():
+                    # 确保有真实的内容                
+                    yield resp.content
         cm.add_chat(resp.content, "assistant")
 
 

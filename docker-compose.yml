@@ -17,5 +17,11 @@ services:
       - PROMPT_TEXT=开放时间，早上九点至下午五点
       - FRCRN_DEVICE=cpu
       - SENSE_DEVICE=cpu
-
+    deploy: # 对于有gpu的设备，需要指定硬件
+        resources:
+            reservations:
+                devices:
+                  - driver: nvidia
+                    count: 1
+                    capabilities: [gpu]
 
