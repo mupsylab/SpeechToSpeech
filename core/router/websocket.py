@@ -87,6 +87,7 @@ class WebsocketClient:
 
     def _load_audio_buffer(self, blob):
         array = np.frombuffer(blob, dtype=np.int16).astype(np.float32)
+        array = denoise(array, self.sampleRate)
         if array.std() > 300:
             # 如果音频片段达到了要求
             self.audioBuffer = np.concatenate([self.audioBuffer, array], dtype = np.float32, axis = 0)
