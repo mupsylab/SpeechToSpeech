@@ -6,14 +6,6 @@ load_dotenv()
 
 ENABLE = os.getenv("ENABLE", "account,websocket").split(",")
 app = fastapi.FastAPI()
-from fastapi.middleware.cors import CORSMiddleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # 开发环境中使用
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 for m in ENABLE:
     module = __import__("core.router.{}".format(m), globals(), locals(), ["router"], 0)
