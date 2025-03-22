@@ -9,7 +9,9 @@ logger = getLogger(__name__)
 
 from model.denoise import denoise
 from model.sensor import vad_array, asr_array
-from . import ChatManager, session_manager, chat, stream_io
+from . import session_manager
+from ..llm import ChatManager
+from ..utils.dynamic import chat, stream_io
 
 router = fastapi.APIRouter()
 @router.websocket("/ws/{session_id}")

@@ -1,22 +1,8 @@
 """
 LLM聊天管理
 """
-from __future__ import annotations
-from typing_extensions import Any, Literal, List, Generator, Callable
-StreamIO = Callable[[Generator[str]], Generator[bytes]]
-
-import os
 from logging import getLogger
 logger = getLogger(__name__)
-from ..llm import Chat, ChatManager
-
-# 导入llm模块
-module = __import__(f"core.llm.{os.getenv('LLM', 'chatgpt')}", globals(), locals(), ["chat"])
-chat: Chat = module.chat
-
-# 导入tts模块
-module = __import__(f"model.{os.getenv('TTS', 'sovits')}", globals(), locals(), ["stream_io"])
-stream_io: StreamIO = module.stream_io
 
 class SessionManager():
     def __init__(self) -> None:
