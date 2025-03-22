@@ -39,6 +39,7 @@ wordsegment
 g2p_en
 nltk
 ToJyutping
+matplotlib==3.10.0
 # pyopenjtalk>=0.3.4
 g2pk2
 ko_pron

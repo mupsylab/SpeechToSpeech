@@ -7,6 +7,7 @@ services:
     volumes:
       - ./env:/app/env
       - ./model_pretrained:/app/model_pretrained
+      - ./ffmpeg:/usr/bin/ffmpeg # 这样子就不要apt安装了
     environment:
       - LLM=chatgpt
       - TTS=cosy
