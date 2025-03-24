@@ -5,7 +5,7 @@ import logging
 import openai
 from typing import Generator
 
-from . import ChatResponse, ChatMessage
+from ..entity import ChatResponse, ChatMessage
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +35,13 @@ def chat(messages: list[ChatMessage]) -> Generator[ChatResponse]:
         global_content.append(c)
         yield ChatResponse(type = "char", content = c)
 
-        pattern = re.search(r"[,\.!\?，。？！、]", c)
+        pattern = re.search(r"[,\.!\?，。？！、：:]", c)
         if pattern and len("".join(content).strip()) > 10:
             [spos, epos] = pattern.span()
             if spos == 0:
                 # 分段的时候在开头
                 msg = "".join(content) + c[spos]
-                content = [c[spos:]] if len(c) > 1 else []
+                content = [c[epos:]] if len(c) > 1 else []
             elif epos == len(c):
                 # 分段的时候在结尾
                 msg = "".join(content + [c])
@@ -54,7 +54,7 @@ def chat(messages: list[ChatMessage]) -> Generator[ChatResponse]:
             yield ChatResponse(type = "sentence", content = msg)
         else:
             content.append(c)
-    if len(content):
+    if len("".join(content).strip()):
         # 还有剩下的内容
         yield ChatResponse(type = "sentence", content = "".join(content))
     logger.debug("stop llm generate message")

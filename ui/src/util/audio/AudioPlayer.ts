@@ -1,41 +1,59 @@
 import { AudioBase } from ".";
+import PlayerProcessor from "./PlayerProcessor?worker&url";
 
 export class AudioPlayer extends AudioBase {
-    private audioElement: HTMLAudioElement;
+    private audioContext: AudioContext | undefined;
+    private workletNode: AudioWorkletNode | undefined;
     constructor(options?: Partial<AnalyserOptions>) {
         super(options);
-        // 创建音频
-        const audioElement = new Audio();
-        audioElement.crossOrigin = "anonymous"; // 允许跨域音频流
-        audioElement.src = "#";
-        audioElement.loop = false; // 是否循环
-        audioElement.onended = () => { this.stop(); }
-        // 创建解析器
+    }
+    public get sampleRate() {
+        return this.audioContext ? this.audioContext.sampleRate : 0;
+    }
+
+    private async initAudioContext() {
+        if(this.audioContext != undefined || this.workletNode != undefined) return;
+        // 创建 音频 上下文
         const audioContext = new AudioContext();
-        const sourceNode = audioContext.createMediaElementSource(audioElement);
-        sourceNode.connect(audioContext.destination);
+        await audioContext.audioWorklet.addModule(PlayerProcessor);
+        const workletNode = new AudioWorkletNode(audioContext, 'player-processor');
+        workletNode.connect(audioContext.destination);
 
         this.analyser = audioContext.createAnalyser();
         this.configureAnalyser();
-        sourceNode.connect(this.analyser);
+        // workletNode.connect(this.analyser);
 
-        // 结束初始化
-        this.audioElement = audioElement;
+        this.audioContext = audioContext;
+        this.workletNode = workletNode;
+    }
+    private async destoryAudioContext() {
+        if(this.audioContext == undefined || this.workletNode == undefined) return;
+        this.analyser?.disconnect();
+        this.workletNode.port.postMessage({ action: "intercept" });
+        this.workletNode.disconnect();
+        this.audioContext.close();
+        this.workletNode = undefined;
+        this.audioContext = undefined;
+        this.analyser = undefined;
     }
 
-    load(url: string) {
-        if (url == this.audioElement.src) {
-            this.audioElement.src = "#";
-        }
-        this.audioElement.src = url;
+    clear() {
+        this.workletNode?.port.postMessage({
+            action: "intercept"
+        })
     }
-    start() {
-        this.audioElement.play();
+    load(buffer: ArrayBuffer) {
+        this.workletNode?.port.postMessage({
+            action: "write",
+            audio: new Int16Array(buffer)
+        })
+    }
+    async start() {
+        await this.initAudioContext();
         this.dispatchEvent("start");
     }
-    stop() {
-        this.audioElement?.pause();
-        this.audioElement.src = "#";
+    async stop() {
+        await this.destoryAudioContext();
         this.dispatchEvent("stop");
     }
 }

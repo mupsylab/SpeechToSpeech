@@ -21,7 +21,7 @@ app.mount("/", StaticFiles(directory="ui/dist"), name = "static")
 
 if __name__ == "__main__":
     if not os.path.exists("data/log"):
-        os.mkdir("data/log")
+        os.makedirs("data/log")
 
     import json
     from logging.config import dictConfig

@@ -5,78 +5,68 @@ import ChatBox from '../../components/wx/chatBox.vue';
 import PhoneBox from '../../components/wx/phoneBox.vue';
 import { Ref, ref } from 'vue';
 import { AudioPlayer } from '../../util/audio/AudioPlayer';
-import { StreamAudioRecord } from '../../util/audio/AudioRecord';
+import { AudioRecord } from '../../util/audio/AudioRecord';
 import { useUserInfo } from '../../store/UserInfo';
+import { base64ToArrayBuffer } from '../../util/audio/utils';
 
 const userInfo = useUserInfo();
 
 let ws: WebSocket | undefined;
-let ap: AudioPlayer | undefined, ar: StreamAudioRecord | undefined;
-function startPhone() {
-    ap = new AudioPlayer();
-    ar = new StreamAudioRecord();
-    ar.addEventListener("record", async (blob) => {
-        const fileReader = new FileReader();
-        fileReader.addEventListener("loadend", () => {
-            const base64Audio = (fileReader.result as string).split(",")[1];
-            ws?.send(JSON.stringify({
-                action: "record",
-                param: {
-                    audio: base64Audio
-                }
-            }));
-        });
-        fileReader.readAsDataURL(blob);
-    });
-    ar.addEventListener("stop", () => {
+const ap = new AudioPlayer();
+const ar = new AudioRecord();
+ar.addEventListener("record", async (blob) => {
+    const fileReader = new FileReader();
+    fileReader.addEventListener("loadend", () => {
+        const base64Audio = (fileReader.result as string).split(",")[1];
         ws?.send(JSON.stringify({
-            action: "finish"
+            action: "record",
+            param: {
+                audio: base64Audio
+            }
         }));
     });
-    // 开启麦克风
-    ar.start();
-    muted.value = false;
-
+    fileReader.readAsDataURL(blob);
+});
+ar.addEventListener("stop", () => {
+    ws?.send(JSON.stringify({
+        action: "finish"
+    }));
+});
+function connectWS() {
     ws = new WebSocket(`/ws/${userInfo.session_id}`);
     ws.addEventListener("error", () => {
-        ElMessage.error("连接失败");
-        togglePhone();
+        ElMessage.error("连接失败，请刷新重试");
+        phone.value = false;
+        ar.stop();
+        ap.stop();
     });
     ws.addEventListener("close", () => {
         phone.value = false;
-        stopPhone();
-    })
+        ar.stop();
+        ap.stop();
+    });
     ws.addEventListener("open", () => {
-        ws?.send(JSON.stringify({
-            action: "init",
-            param: {
-                sampleRate: ar?.sampleRate
-            }
-        }));
-        ap?.load(`/api/tts`);
-        ap?.start();
+        ar.start().then(() => {
+            ws?.send(JSON.stringify({
+                action: "init",
+                param: { sampleRate: ar?.sampleRate }
+            }));
+        });
     });
     ws.addEventListener("message", (e) => {
         if (e.data == "tts:start") {
-            ap?.stop();
-            ap?.load(`/api/tts`);
-            ap?.start();
+            ap.start();
         } else if (e.data == "tts:stop") {
-            ap?.stop();
-        } else if (e.data.startsWith("stream:llm")) {
-            putMsg("assistant", e.data.replace("stream:llm:", ""));
+            ap.stop();
         } else if (e.data.startsWith("stream:asr")) {
             putMsg("user", e.data.replace("stream:asr:", ""));
+        } else if (e.data.startsWith("stream:llm")) {
+            putMsg("assistant", e.data.replace("stream:llm:", ""));
+        } else if (e.data.startsWith("stream:tts")) {
+            const base64 = e.data.replace("stream:tts:", "");
+            ap.load(base64ToArrayBuffer(base64));
         }
     });
-}
-
-function stopPhone() {
-    ws?.close();
-    ap?.stop();
-    ap = undefined;
-    ar?.stop();
-    ar = undefined;
 }
 
 const messages: Ref<Array<{role: "user" | "assistant", msg: string}>> = ref([]);
@@ -96,16 +86,16 @@ fetch("/api/history")
     });
 
 const phone = ref(false);
-const muted = ref(true);
-const chat = ref(false);
 const togglePhone = () => {
     phone.value = !phone.value;
     if (phone.value) {
-        startPhone();
+        connectWS();
+        muted.value = false;
     } else {
-        stopPhone();
+        ws?.close();
     }
 };
+const muted = ref(true);
 const toggleMute = () => {
     muted.value = !muted.value;
     if (muted.value) {
@@ -114,6 +104,7 @@ const toggleMute = () => {
         ar?.start();
     }
 };
+const chat = ref(false);
 const toggleChat = () => { chat.value = !chat.value; };
 </script>
 

@@ -3,10 +3,7 @@ import os
 from logging import getLogger
 logger = getLogger(__name__)
 
-from typing_extensions import Generator, Callable
-StreamIO = Callable[[Generator[str]], Generator[bytes]]
-
-from ..llm import Chat
+from ..entity import Chat, StreamIO
 
 # 导入llm模块
 module = __import__(f"core.llm.{os.getenv('LLM', 'chatgpt')}", globals(), locals(), ["chat"])

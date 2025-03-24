@@ -1,77 +1,46 @@
 import { AudioBase } from ".";
 import RecordProcessor from "./RecordProcessor?worker&url";
 
-export class BaseAudioRecord extends AudioBase {
-    private audioContext: AudioContext;
+export class AudioRecord extends AudioBase {
+    private audioContext: AudioContext | undefined;
+    private workletNode: AudioWorkletNode | undefined;
     constructor(options?: Partial<AnalyserOptions>) {
         super(options);
-        this.audioContext = new AudioContext();
-    }
-
-    private clean = () => {}
-    start() {
-        window.navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                const source = this.audioContext.createMediaStreamSource(stream);
-                this.analyser = this.audioContext.createAnalyser();
-                this.configureAnalyser();
-                source.connect(this.analyser);
-
-                const mr = new MediaRecorder(stream);
-                const blob: Blob[] = [];
-                mr.addEventListener("dataavailable", (e) => {
-                    blob.push(e.data);
-                });
-                mr.addEventListener("stop", () => {
-                    const audioBlob = new Blob(blob, { type: "audio/webm" });
-                    this.dispatchEvent("record", audioBlob);
-                });
-                mr.start(1000);
-
-                this.clean = () => {
-                    source.disconnect();
-                    this.analyser?.disconnect();
-                    stream?.getTracks().forEach(track => track.stop());
-                    mr.stop();
-
-                    this.dispatchEvent("stop");
-                }
-            })
-    }
-    stop() {
-        this.clean();
-        this.clean = () => {};
-    }
-}
-
-export class StreamAudioRecord extends AudioBase {
-    private _init = false;
-    private audioContext: AudioContext;
-    constructor(options?: Partial<AnalyserOptions>) {
-        super(options);
-        this.audioContext = new AudioContext();
-
-        this.audioContext.audioWorklet.addModule(RecordProcessor)
-            .then(() => {
-                this._init = true;
-            });
     }
     public get sampleRate() {
-        return this.audioContext.sampleRate;
+        return this.audioContext ? this.audioContext.sampleRate : 0;
+    }
+
+    private async initAudioContext() {
+        if(this.audioContext != undefined) this.audioContext.close();
+        // 创建 音频 上下文
+        const audioContext = new AudioContext();
+        await audioContext.audioWorklet.addModule(RecordProcessor);
+        const workletNode = new AudioWorkletNode(audioContext, 'record-processor');
+
+        this.analyser = audioContext.createAnalyser();
+        this.configureAnalyser();
+        workletNode.connect(this.analyser);
+
+        this.audioContext = audioContext;
+        this.workletNode = workletNode;
+    }
+    private async destoryAudioContext() {
+        if(this.audioContext == undefined || this.workletNode == undefined || this.analyser == undefined) return;
+        this.analyser?.disconnect();
+        this.workletNode.port.postMessage({ action: "intercept" });
+        this.workletNode.disconnect();
+        this.audioContext.close();
+        this.workletNode = undefined;
+        this.audioContext = undefined;
+        this.analyser = undefined;
     }
 
     private clean = () => {}
     async start() {
         const stream = await window.navigator.mediaDevices.getUserMedia({ audio: true });
-        // 等待 this._init 变为 true
-        await new Promise<void>((resolve) => {
-            const interval = setInterval(() => {
-                if (this._init) {
-                    clearInterval(interval);
-                    resolve();
-                }
-            }, 100); // 每100ms检查一次
-        });
+        await this.initAudioContext();
+        if (this.audioContext == undefined || this.workletNode == undefined) return;
 
         const source = this.audioContext.createMediaStreamSource(stream);
         this.analyser = this.audioContext.createAnalyser();
@@ -79,8 +48,7 @@ export class StreamAudioRecord extends AudioBase {
         source.connect(this.analyser);
 
         const blob: Blob[] = [];
-        const workletNode = new AudioWorkletNode(this.audioContext, "record-processor");
-        workletNode.port.onmessage =  (e) => {
+        this.workletNode.port.onmessage =  (e) => {
             blob.push(e.data.audio);
             // 假设采样率 48000，一秒钟48000个样本点
             // 一次会提供 32 个样本
@@ -89,24 +57,22 @@ export class StreamAudioRecord extends AudioBase {
                 blob.splice(0, blob.length);
             }
         }
-        source.connect(workletNode);
+        source.connect(this.workletNode);
 
         this.clean = () => {
             if (blob.length > 0) {
                 this.dispatchEvent("record", new Blob(blob, { type: "audio/wav" }));
                 blob.splice(0, blob.length);
             }
-            workletNode.disconnect();
-            source.disconnect();
-            this.analyser?.disconnect();
             stream?.getTracks().forEach(track => track.stop());
-
-            this.dispatchEvent("stop");
         }
+        this.dispatchEvent("start");
     }
 
-    stop() {
+    async stop() {
+        await this.destoryAudioContext();
         this.clean();
         this.clean = () => {};
+        this.dispatchEvent("stop");
     }
 }

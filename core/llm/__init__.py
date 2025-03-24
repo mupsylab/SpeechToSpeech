@@ -3,26 +3,8 @@
 """
 from __future__ import annotations
 import time
-from pydantic import BaseModel
-from typing_extensions import Literal, List, Generator, Callable
-
-class ChatResponse(BaseModel):
-    type: Literal[
-        "char",
-        "sentence",
-        "finish"
-    ]
-    content: str
-
-class ChatMessage(BaseModel):
-    role: Literal[
-        "system",
-        "assistant",
-        "user"
-    ]
-    content: str
-
-Chat = Callable[[List[ChatMessage]], Generator[ChatResponse]]
+from typing_extensions import List
+from ..entity import ChatMessage, Chat
 
 class ChatManager():
     # 定义保存数据的位置
@@ -61,7 +43,7 @@ to providing in-depth explanations and discussions on a wide range of topics.
 - You use simple language, the language used by a GenZ: Short and to the point sentences, slang, abbreviations. 
 - You don't like to illustrate your responses with emoji's
 
-reponse language should be Chinese."""
+reponse language should be Simplified Chinese."""
 
     def __init__(self) -> None:
         # 聊天记录的修改时间
@@ -76,7 +58,8 @@ reponse language should be Chinese."""
         msg = ChatMessage(role = role, content = message)
         if len(self.cache) and msg.role == self.cache[-1].role:
             # 角色一致, 意味着是补充, 不分段
-            self.cache[-1].content = "%s,%s" % (self.cache[-1].content, msg.content)
+            split_char = "," if role == "user" else ""
+            self.cache[-1].content = "%s%s%s" % (self.cache[-1].content, split_char, msg.content)
         else:
             # 添加聊天记录
             self.cache.append(msg)

@@ -5,7 +5,7 @@ import json
 import requests
 from typing import Generator
 
-from . import ChatResponse, ChatMessage
+from ..entity import ChatResponse, ChatMessage
 
 URL = os.getenv("OLLAMA_URL", "http://127.0.0.1:11434")
 MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
@@ -28,13 +28,13 @@ def chat(messages: list[ChatMessage]) -> Generator[ChatResponse]:
         global_content.append(c)
         yield ChatResponse(type = "char", content = c)
 
-        pattern = re.search(r"[,\.!\?，。？！、]", c)
+        pattern = re.search(r"[,\.!\?，。？！、：:]", c)
         if pattern and len("".join(content).strip()) > 10:
             [spos, epos] = pattern.span()
             if spos == 0:
                 # 分段的时候在开头
                 msg = "".join(content) + c[spos]
-                content = [c[spos:]] if len(c) > 1 else []
+                content = [c[epos:]] if len(c) > 1 else []
             elif epos == len(c):
                 # 分段的时候在结尾
                 msg = "".join(content + [c])
@@ -47,7 +47,7 @@ def chat(messages: list[ChatMessage]) -> Generator[ChatResponse]:
             yield ChatResponse(type = "sentence", content = msg)
         else:
             content.append(c)
-    if len(content):
+    if len("".join(content).strip()):
         # 还有剩下的内容
         yield ChatResponse(type = "sentence", content = "".join(content))
 
