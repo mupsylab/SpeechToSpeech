@@ -17,8 +17,8 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app/env
 WORKDIR /app
 EXPOSE 8000
-ENTRYPOINT ["/app/script/start.sh"]
+ENTRYPOINT ["/app/scripts/start.sh"]
 
 COPY . /app
 COPY --from=frontend-builder /app/dist /app/ui/dist
-RUN chmod +x /app/script/start.sh
+RUN chmod +x /app/scripts/start.sh
